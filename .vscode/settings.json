@@ -4,6 +4,6 @@
     ],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "/home/rgao473/loan-management-system/lib/gson-2.13.2.jar"
+        "lib/gson-2.13.2.jar"
     ]
 }

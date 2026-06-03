@@ -72,7 +72,7 @@ public class SelectionMenu implements Menu<Integer> {
             builder.append('\n');
         }
 
-        out.println(builder);
+        out.print(builder);
     }
 
     @Override

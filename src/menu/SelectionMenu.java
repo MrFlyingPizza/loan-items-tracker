@@ -91,27 +91,12 @@ public class SelectionMenu implements Menu<Integer> {
 
     @Override
     public Prompt<Integer> prompt() {
-        return new Prompt<Integer>() {
-            @Override
-            public void request(PrintStream out) {
-                out.printf("Choose an option by entering 1-%d: ", options.size());
-            }
-
-            @Override
-            public Integer receive(Scanner in) throws BadUserInputException {
-                var input = in.nextLine();
-
-                var selection = -1;
-                try {
-                    selection = Integer.parseInt(input);
-                } catch (NumberFormatException e) {
-                    throw new BadUserInputException(
-                            "Invalid Selection. Enter a number between 1 and %d".formatted(options.size()));
-                }
-
-                return selection;
-            }
-        };
+        return new IntLimitedPrompt(
+                1,
+                options.size(),
+                "Choose an option by entering %d-%d: ",
+                "Invalid selection. Enter a number between %d and %d",
+                "Invalid selection. Enter a number between %d and %d");
     }
 
     @Override

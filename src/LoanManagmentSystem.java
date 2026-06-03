@@ -24,6 +24,7 @@ public class LoanManagmentSystem {
 
     private static class StringBuilderLoanAppender implements Consumer<Loan> {
         private int counter = 1;
+
         private final StringBuilder builder;
 
         StringBuilderLoanAppender(StringBuilder builder) {
@@ -81,6 +82,16 @@ public class LoanManagmentSystem {
         writer.write(GSON.toJson(LOANS));
     }
 
+    private static void printLoans(List<Loan> loans, PrintStream out) {
+        var builder = new StringBuilder();
+        if (loans.isEmpty()) {
+            builder.append("No items to show.");
+        } else {
+            loans.stream().forEach(new StringBuilderLoanAppender(builder));
+        }
+        out.println(builder);
+    }
+
     private static void handleExit(Scanner in, PrintStream out) {
         out.printf("Saving the loans to %s\n", SAVE_FILE);
 
@@ -93,16 +104,6 @@ public class LoanManagmentSystem {
         } catch (IOException e) {
             out.printf("Failed to save the loans: %s", e);
         }
-    }
-
-    private static void printLoans(List<Loan> loans, PrintStream out) {
-        var builder = new StringBuilder();
-        if (loans.isEmpty()) {
-            builder.append("No items to show.");
-        } else {
-            loans.stream().forEach(new StringBuilderLoanAppender(builder));
-        }
-        out.println(builder);
     }
 
     private static void handleListAllItems(Scanner in, PrintStream out) {

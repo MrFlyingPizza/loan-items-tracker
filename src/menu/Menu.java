@@ -1,104 +1,75 @@
 package menu;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
-public class Menu {
-
-    private static record Option(String name, MenuAction action) {
-    }
-
-    private final String title;
-
-    private final List<Option> options = new ArrayList<>();
-
+public interface Menu<T> {
     /**
-     * Creates a new menu.
-     * 
-     * @param title The title of the menu.
+     * Tell what the user to do.
      */
-    public Menu(String title) {
-        this.title = title;
-    }
+    void display(PrintStream out);
 
     /**
-     * Add an option for the user to select from.
+     * Prompt for a value.
      * 
-     * @param name   The name of the option shown to the user.
-     * @param action An action that takes inputs but produce no output.
+     * @return
      */
-    public void addInputOption(String name, MenuInputAction action) {
-        options.add(new Option(name, action));
-    }
+    void prompt(PrintStream out);
 
     /**
-     * Add an option for the user to select from.
-     * 
-     * @param name   The name of the option shown to the user.
-     * @param action An action that takes no input but produces outputs.
-     */
-    public void addOutputOption(String name, MenuOutputAction action) {
-        options.add(new Option(name, action));
-    }
-
-    /**
-     * Add an option for the user to select from.
-     * 
-     * @param name   The name of the option shown to the user.
-     * @param action An action that can both take input and produce output.
-     */
-    public void addOption(String name, MenuInputOutputAction action) {
-        options.add(new Option(name, action));
-    }
-
-    /**
-     * Write the menu to the output.
-     * 
-     * @param out The output.
-     */
-    public void display(PrintStream out) {
-        final var C = "#";
-        final var S = ' ';
-        var builder = new StringBuilder();
-        for (var i = 0; i < title.length() + 4; i++) {
-            builder.append('#');
-        }
-
-        builder.append('\n');
-
-        builder.append(C);
-        builder.append(S);
-        builder.append(title);
-        builder.append(S);
-        builder.append(C);
-
-        builder.append('\n');
-
-        for (var i = 0; i < title.length() + 4; i++) {
-            builder.append('#');
-        }
-
-        builder.append('\n');
-
-        for (var i = 0; i < options.size(); i++) {
-            builder.append(i + 1);
-            builder.append(": ");
-            builder.append(options.get(i).name);
-            builder.append('\n');
-        }
-
-        out.println(builder.toString());
-    }
-
-    /**
-     * Read a user's choice from the input.
+     * Read the value.
      * 
      * @param in The input.
+     * @return The value read.
+     * @throws BadUserInputException Indicate that the user input was bad.
      */
-    public void prompt(Scanner in) throws BadUserInputException {
-        var input = in.nextLine();
+    T read(Scanner in) throws BadUserInputException;
 
+    /**
+     * Dispatch the given value.
+     * 
+     * @param value The value passed by the user.
+     */
+    void dispatch(T value, Scanner in, PrintStream out);
+
+    /**
+     * Determines if the event loop should keep going.
+     * 
+     * @return Whether to continue running.
+     */
+    boolean isRunning();
+
+    /**
+     * Stop the running cycle.
+     */
+    void stop();
+
+    private T promptReadCycle(Scanner in, PrintStream out) {
+        boolean shouldRead = true;
+        T value = null;
+        while (shouldRead) {
+            prompt(out);
+            try {
+                value = read(in);
+                shouldRead = false;
+            } catch (BadUserInputException e) {
+                out.println(e.getMessage());
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Start the display->prompt->read->dispatch cycle.
+     * 
+     * @param in  The input to read from.
+     * @param out The output to write to.
+     */
+    default void run(Scanner in, PrintStream out) {
+        while (isRunning()) {
+            display(out);
+            var value = promptReadCycle(in, out);
+            dispatch(value, in, out);
+        }
     }
 }

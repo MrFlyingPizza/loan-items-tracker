@@ -90,33 +90,33 @@ public class SelectionMenu implements Menu<Integer> {
     }
 
     @Override
-    public void prompt(PrintStream out) {
-        out.printf("Choose an option by entering 1-%d: ", options.size());
+    public Prompt<Integer> prompt() {
+        return new Prompt<Integer>() {
+            @Override
+            public void request(PrintStream out) {
+                out.printf("Choose an option by entering 1-%d: ", options.size());
+            }
+
+            @Override
+            public Integer receive(Scanner in) throws BadUserInputException {
+                var input = in.nextLine();
+
+                var selection = -1;
+                try {
+                    selection = Integer.parseInt(input);
+                } catch (NumberFormatException e) {
+                    throw new BadUserInputException(
+                            "Invalid Selection. Enter a number between 1 and %d".formatted(options.size()));
+                }
+
+                return selection;
+            }
+        };
     }
 
     @Override
     public boolean isRunning() {
         return running;
-    }
-
-    @Override
-    public Integer read(Scanner in) throws BadUserInputException {
-        var input = in.nextLine();
-
-        var selection = -1;
-        try {
-            selection = Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            throw new BadUserInputException(
-                    "Invalid Selection. Enter a number between 1 and %d".formatted(options.size()));
-        }
-
-        if (selection <= 0 || selection > options.size()) {
-            throw new BadUserInputException(
-                    "Invalid Selection. Enter a number between 1 and %d".formatted(options.size()));
-        }
-
-        return selection;
     }
 
     @Override

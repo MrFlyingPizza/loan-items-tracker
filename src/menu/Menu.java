@@ -3,11 +3,18 @@ package menu;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-public interface Menu<T> extends Prompt<T> {
+public interface Menu<T> {
     /**
      * Tell what the user to do.
      */
     void display(PrintStream out);
+
+    /**
+     * Get a prompt for a value to prompt the user with.
+     * 
+     * @return A prompt.
+     */
+    Prompt<T> prompt();
 
     /**
      * Dispatch the given value.
@@ -29,7 +36,7 @@ public interface Menu<T> extends Prompt<T> {
     void stop();
 
     /**
-     * Start the display->prompt->read->dispatch cycle.
+     * Start the display->prompt->dispatch cycle.
      * 
      * @param in  The input to read from.
      * @param out The output to write to.
@@ -37,7 +44,7 @@ public interface Menu<T> extends Prompt<T> {
     default void run(Scanner in, PrintStream out) {
         while (isRunning()) {
             display(out);
-            var value = execute(in, out);
+            var value = prompt().execute(in, out);
             dispatch(value, in, out);
         }
     }

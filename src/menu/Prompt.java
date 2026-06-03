@@ -10,7 +10,7 @@ public interface Prompt<T> {
      * 
      * @return
      */
-    void prompt(PrintStream out);
+    void request(PrintStream out);
 
     /**
      * Read a value.
@@ -19,7 +19,7 @@ public interface Prompt<T> {
      * @return The value read.
      * @throws BadUserInputException Indicate that the user input was bad.
      */
-    T read(Scanner in) throws BadUserInputException;
+    T receive(Scanner in) throws BadUserInputException;
 
     /**
      * Execute the prompt by asking the user and reading until a satisfactory value
@@ -33,9 +33,9 @@ public interface Prompt<T> {
         boolean shouldRead = true;
         T value = null;
         while (shouldRead) {
-            prompt(out);
+            request(out);
             try {
-                value = read(in);
+                value = receive(in);
                 shouldRead = false;
             } catch (BadUserInputException e) {
                 out.println(e.getMessage());

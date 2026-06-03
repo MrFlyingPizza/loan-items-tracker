@@ -3,27 +3,11 @@ package menu;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-public interface Menu<T> {
+public interface Menu<T> extends Prompt<T> {
     /**
      * Tell what the user to do.
      */
     void display(PrintStream out);
-
-    /**
-     * Prompt for a value.
-     * 
-     * @return
-     */
-    void prompt(PrintStream out);
-
-    /**
-     * Read the value.
-     * 
-     * @param in The input.
-     * @return The value read.
-     * @throws BadUserInputException Indicate that the user input was bad.
-     */
-    T read(Scanner in) throws BadUserInputException;
 
     /**
      * Dispatch the given value.
@@ -44,21 +28,6 @@ public interface Menu<T> {
      */
     void stop();
 
-    private T promptReadCycle(Scanner in, PrintStream out) {
-        boolean shouldRead = true;
-        T value = null;
-        while (shouldRead) {
-            prompt(out);
-            try {
-                value = read(in);
-                shouldRead = false;
-            } catch (BadUserInputException e) {
-                out.println(e.getMessage());
-            }
-        }
-        return value;
-    }
-
     /**
      * Start the display->prompt->read->dispatch cycle.
      * 
@@ -68,7 +37,7 @@ public interface Menu<T> {
     default void run(Scanner in, PrintStream out) {
         while (isRunning()) {
             display(out);
-            var value = promptReadCycle(in, out);
+            var value = execute(in, out);
             dispatch(value, in, out);
         }
     }

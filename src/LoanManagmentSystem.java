@@ -95,30 +95,26 @@ public class LoanManagmentSystem {
         }
     }
 
-    private static void handleListAllItems(Scanner in, PrintStream out) {
+    private static void printLoans(List<Loan> loans, PrintStream out) {
         var builder = new StringBuilder();
-
-        LOANS.stream().forEach(new StringBuilderLoanAppender(builder));
-
+        if (loans.isEmpty()) {
+            builder.append("No items to show.");
+        } else {
+            loans.stream().forEach(new StringBuilderLoanAppender(builder));
+        }
         out.println(builder);
+    }
+
+    private static void handleListAllItems(Scanner in, PrintStream out) {
+        printLoans(LOANS, out);
     }
 
     private static void handleListOverdueItems(Scanner in, PrintStream out) {
-        var builder = new StringBuilder();
-
-        LOANS.stream().filter(loan -> loan.getDue().isBefore(LocalDate.now()))
-                .forEach(new StringBuilderLoanAppender(builder));
-
-        out.println(builder);
+        printLoans(LOANS.stream().filter(loan -> loan.getDue().isBefore(LocalDate.now())).toList(), out);
     }
 
     private static void handleListUpcomingItems(Scanner in, PrintStream out) {
-        var builder = new StringBuilder();
-
-        LOANS.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now()))
-                .forEach(new StringBuilderLoanAppender(builder));
-
-        out.println(builder);
+        printLoans(LOANS.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now())).toList(), out);
     }
 
     public static void main(String[] args) throws Exception {

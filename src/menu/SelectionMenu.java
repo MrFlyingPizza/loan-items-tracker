@@ -40,6 +40,7 @@ public class SelectionMenu implements Menu<Integer> {
      * 
      * @param out The output.
      */
+    @Override
     public void display(PrintStream out) {
         final var C = "#";
         final var S = ' ';
@@ -74,6 +75,7 @@ public class SelectionMenu implements Menu<Integer> {
         out.println(builder);
     }
 
+    @Override
     public void stop() {
         running = false;
     }

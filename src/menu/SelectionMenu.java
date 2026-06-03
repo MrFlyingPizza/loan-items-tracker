@@ -91,12 +91,9 @@ public class SelectionMenu implements Menu<Integer> {
 
     @Override
     public Prompt<Integer> prompt() {
-        return new IntLimitedPrompt(
-                1,
-                options.size(),
-                "Choose an option by entering %d-%d: ",
-                "Invalid selection. Enter a number between %d and %d",
-                "Invalid selection. Enter a number between %d and %d");
+        var promptMessage = "Choose an option by entering 1-%d: ".formatted(options.size());
+        var errorMessage = "Invalid selection. Enter a number between 1 and %d".formatted(options.size());
+        return new IntLimitedPrompt(1, options.size(), promptMessage, errorMessage);
     }
 
     @Override

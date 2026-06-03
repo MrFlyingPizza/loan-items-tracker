@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -18,7 +20,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import loan.Loan;
+import menu.IntLimitedPrompt;
+import menu.IntPrompt;
 import menu.SelectionMenu;
+import menu.StringPrompt;
 
 public class LoanManagmentSystem {
 
@@ -66,11 +71,60 @@ public class LoanManagmentSystem {
         }
 
         MAIN_MENU = new SelectionMenu("Loan Items Tracker");
-        MAIN_MENU.addOption("List All Items", LoanManagmentSystem::handleListAllItems);
-        MAIN_MENU.addOption("Add an Item", null);
-        MAIN_MENU.addOption("Remove an Item", null);
-        MAIN_MENU.addOption("List Overdue Items", LoanManagmentSystem::handleListOverdueItems);
-        MAIN_MENU.addOption("List Upcoming Items", LoanManagmentSystem::handleListUpcomingItems);
+        MAIN_MENU.addOption("List All Items", (in, out) -> printLoans(LOANS, out));
+        MAIN_MENU.addOption("Add an Item", (in, out) -> {
+
+            var name = new StringPrompt("Enter the loan item's name: ").execute(in, out);
+
+            var yearDue = new IntPrompt("Enter the year of the due date (e.g., 2026): ", "Please enter a valid year.")
+                    .execute(in, out);
+
+            var monthDue = new IntLimitedPrompt(
+                    Month.JANUARY.ordinal(),
+                    Month.DECEMBER.ordinal(),
+                    "Enter the month of the due date (1-12): ",
+                    "Please enter a valid month between 1 and 12.").execute(in, out);
+
+            var maxMonth = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
+            var dayDue = new IntLimitedPrompt(
+                    Month.JANUARY.ordinal(),
+                    maxMonth,
+                    "Enter the day of the due date in the year and month (1-%d): ".formatted(maxMonth),
+                    "Please enter a valid month between 1 and %d.".formatted(maxMonth)).execute(in, out);
+
+            var publisher = new StringPrompt("Enter the publisher of the loan item: ").execute(in, out);
+
+            var loanedTo = new StringPrompt("Enter the name to which the item is loaned: ").execute(in, out);
+
+            var due = LocalDate.of(yearDue, monthDue, dayDue);
+
+            var loan = new Loan(name, publisher, loanedTo, due);
+
+            LOANS.add(loan);
+
+            out.printf("%s has been added to the list.\n", name);
+        });
+
+        MAIN_MENU.addOption("Remove an Item", (in, out) -> {
+            printLoans(LOANS, out);
+            var selection = new IntLimitedPrompt(0, LOANS.size(),
+                    "Enter the item number you want to remove (0 to cancel): ",
+                    "Invalid selection. Enter a number between 0 and %d".formatted(LOANS.size())).execute(in, out);
+            if (selection == 0) {
+                out.println("Item removal cancelled.");
+                return;
+            }
+
+            LOANS.remove(selection - 1);
+        });
+
+        MAIN_MENU.addOption("List Overdue Items",
+                (in, out) -> printLoans(LOANS.stream().filter(loan -> loan.getDue().isBefore(LocalDate.now())).toList(),
+                        out));
+
+        MAIN_MENU.addOption("List Upcoming Items", (in, out) -> printLoans(
+                LOANS.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now())).toList(), out));
+
         MAIN_MENU.addOption("Exit", LoanManagmentSystem::handleExit);
     }
 
@@ -104,18 +158,6 @@ public class LoanManagmentSystem {
         } catch (IOException e) {
             out.printf("Failed to save the loans: %s", e);
         }
-    }
-
-    private static void handleListAllItems(Scanner in, PrintStream out) {
-        printLoans(LOANS, out);
-    }
-
-    private static void handleListOverdueItems(Scanner in, PrintStream out) {
-        printLoans(LOANS.stream().filter(loan -> loan.getDue().isBefore(LocalDate.now())).toList(), out);
-    }
-
-    private static void handleListUpcomingItems(Scanner in, PrintStream out) {
-        printLoans(LOANS.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now())).toList(), out);
     }
 
     public static void main(String[] args) throws Exception {

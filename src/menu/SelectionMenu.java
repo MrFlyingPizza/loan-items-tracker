@@ -91,7 +91,7 @@ public class SelectionMenu implements Menu<Integer> {
 
     @Override
     public void prompt(PrintStream out) {
-        out.printf("Choose an option by entering 1-%d: ", 1, options.size());
+        out.printf("Choose an option by entering 1-%d: ", options.size());
     }
 
     @Override

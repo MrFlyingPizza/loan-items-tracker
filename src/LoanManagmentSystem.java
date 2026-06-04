@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;

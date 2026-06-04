@@ -74,6 +74,8 @@ public class LoanManagmentSystem {
 
             var name = new StringPrompt("Enter the loan item's name: ").execute(in, out);
 
+            // TODO: ensure certain strings not blank
+
             var yearDue = new IntPrompt("Enter the year of the due date (e.g., 2026): ", "Please enter a valid year.")
                     .execute(in, out);
 

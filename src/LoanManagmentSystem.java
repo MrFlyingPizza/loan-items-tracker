@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,17 +70,18 @@ public class LoanManagmentSystem {
                     .execute(in, out);
 
             var monthDue = new IntLimitedPrompt(
-                    Month.JANUARY.ordinal(),
-                    Month.DECEMBER.ordinal(),
-                    "Enter the month of the due date (1-12): ",
+                    Month.JANUARY.getValue(),
+                    Month.DECEMBER.getValue(),
+                    "Enter the month of the due date (%d-%d): ".formatted(Month.JANUARY.getValue(),
+                            Month.DECEMBER.getValue()),
                     "Please enter a valid month between 1 and 12.").execute(in, out);
 
-            var maxMonth = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
+            var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
             var dayDue = new IntLimitedPrompt(
-                    Month.JANUARY.ordinal(),
-                    maxMonth,
-                    "Enter the day of the due date in the year and month (1-%d): ".formatted(maxMonth),
-                    "Please enter a valid month between 1 and %d.".formatted(maxMonth)).execute(in, out);
+                    1,
+                    maxDay,
+                    "Enter the day of the due date in the year and month (1-%d): ".formatted(maxDay),
+                    "Please enter a valid month between 1 and %d.".formatted(maxDay)).execute(in, out);
 
             var publisher = new StringPrompt("Enter the publisher of the loan item: ").execute(in, out);
 

@@ -1,6 +1,8 @@
 package menus;
 
 import java.io.PrintStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -45,6 +47,7 @@ public class SelectionMenu implements Menu<Integer> {
      */
     @Override
     public void display(PrintStream out) {
+        /* Start banner */
         final var C = "#";
         final var S = ' ';
         var builder = new StringBuilder();
@@ -68,21 +71,35 @@ public class SelectionMenu implements Menu<Integer> {
 
         builder.append('\n');
 
+        /* End banner */
+        /* Start current date */
+        builder.append("Today is: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy MMMM dd")))
+                .append('\n');
+        /* End current date */
+
+        /* Start options */
         for (var i = 0; i < options.size(); i++) {
             builder.append(i + 1);
             builder.append(": ");
             builder.append(options.get(i).name);
             builder.append('\n');
         }
+        /* End options */
 
         out.print(builder);
     }
 
+    /**
+     * Stop the menu from cycling.
+     */
     @Override
     public void stop() {
         running = false;
     }
 
+    /**
+     * Run the selection menu cycle.
+     */
     @Override
     public void run(Scanner in, PrintStream out) {
         if (options.size() <= 0) {
@@ -92,6 +109,9 @@ public class SelectionMenu implements Menu<Integer> {
         Menu.super.run(in, out);
     }
 
+    /**
+     * Prompts the user for a selection.
+     */
     @Override
     public Prompt<Integer> prompt() {
         var promptMessage = "Choose an option by entering 1-%d: ".formatted(options.size());
@@ -99,11 +119,17 @@ public class SelectionMenu implements Menu<Integer> {
         return new IntLimitedPrompt(1, options.size(), promptMessage, errorMessage);
     }
 
+    /**
+     * Check if the selection menu is still cycling.
+     */
     @Override
     public boolean isRunning() {
         return running;
     }
 
+    /**
+     * Dispatch the user's selection.
+     */
     @Override
     public void dispatch(Integer selection, Scanner in, PrintStream out) {
         options.get(selection - 1).action().perform(in, out);

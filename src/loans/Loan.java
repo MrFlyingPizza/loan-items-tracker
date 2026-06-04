@@ -11,10 +11,10 @@ public class Loan {
     /**
      * Creates a new loan.
      * 
-     * @param name      The name of the loaned item.
-     * @param publisher The publisher of the loaned item.
-     * @param loanedTo  The person that the item was loaned to.
-     * @param due       When the loan is due for return.
+     * @param name      The name of the loaned item. Must not be blank.
+     * @param publisher The publisher of the loaned item. Can be empty.
+     * @param loanedTo  The person that the item was loaned to. Must not be blank.
+     * @param due       When the loan is due for return. Must not be blank.
      */
     public Loan(String name, String publisher, String loanedTo, LocalDate due) {
         Objects.requireNonNull(name);
@@ -39,18 +39,38 @@ public class Loan {
     private final String name, publisher, loanedTo;
     private final LocalDate due;
 
+    /**
+     * Retrieves the name of the loaned item.
+     * 
+     * @return The name of the loaned item.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Retrieves the publisher of the loaned item.
+     * 
+     * @return The publisher.
+     */
     public String getPublisher() {
         return publisher;
     }
 
+    /**
+     * Retrieve who the item was loaned to.
+     * 
+     * @return Name of the loaned-to person.
+     */
     public String getLoanedTo() {
         return loanedTo;
     }
 
+    /**
+     * Get when the loan is due.
+     * 
+     * @return The due date.
+     */
     public LocalDate getDue() {
         return due;
     }

@@ -5,9 +5,16 @@ import java.util.Scanner;
 
 import prompts.Prompt;
 
+/**
+ * The behaviours of a menu.
+ * 
+ * @param <T> What this menu dispatches as a value.
+ */
 public interface Menu<T> {
     /**
      * Tell what the user to do.
+     * 
+     * @param out The output to write to.
      */
     void display(PrintStream out);
 
@@ -22,6 +29,8 @@ public interface Menu<T> {
      * Dispatch the given value.
      * 
      * @param value The value passed by the user.
+     * @param in    The input to read from.
+     * @param out   The output to write to.
      */
     void dispatch(T value, Scanner in, PrintStream out);
 

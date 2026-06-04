@@ -10,6 +10,9 @@ import java.util.Scanner;
 import prompts.IntLimitedPrompt;
 import prompts.Prompt;
 
+/**
+ * A menu that allows the user to perform actions using through selections.
+ */
 public class SelectionMenu implements Menu<Integer> {
 
     private static record Option(String name, MenuAction action) {

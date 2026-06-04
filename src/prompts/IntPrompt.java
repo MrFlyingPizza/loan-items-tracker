@@ -3,10 +3,20 @@ package prompts;
 import java.io.PrintStream;
 import java.util.Scanner;
 
+/**
+ * A prompt for an integer.
+ */
 public class IntPrompt implements Prompt<Integer> {
     private final String requestMessage;
     private final String parseErrorMessage;
 
+    /**
+     * Creates a new prompt for a integer.
+     * 
+     * @param requestMessage    The message to display to the user when prompting.
+     * @param parseErrorMessage The message to display when the user gives bad
+     *                          input that causes a parse error.
+     */
     public IntPrompt(String requestMessage, String parseErrorMessage) {
         this.requestMessage = requestMessage;
         this.parseErrorMessage = parseErrorMessage;

@@ -28,7 +28,16 @@ import prompts.IntLimitedPrompt;
 import prompts.IntPrompt;
 import prompts.StringPrompt;
 
+/**
+ * Core class for managing loans.
+ */
 public class LoanManagmentSystem {
+
+    /**
+     * Unused.
+     */
+    private LoanManagmentSystem() {
+    }
 
     private static final List<Loan> LOANS = new ArrayList<>();
     private static final String SAVE_FILE_NAME = "loans.json";
@@ -155,6 +164,12 @@ public class LoanManagmentSystem {
         out.println(builder);
     }
 
+    /**
+     * Entrypoint.
+     * 
+     * @param args CLI arguments.
+     * @throws Exception If an error occurs.
+     */
     public static void main(String[] args) throws Exception {
         MAIN_MENU.run(new Scanner(System.in), System.out);
     }

@@ -3,12 +3,17 @@ package prompts;
 import java.io.PrintStream;
 import java.util.Scanner;
 
+/**
+ * Defines the behaviour of a prompt.
+ * 
+ * @param <T> What kind of value this prompt is for.
+ */
 public interface Prompt<T> {
 
     /**
      * Tell the user what you want.
      * 
-     * @return
+     * @param out Output to write to.
      */
     void request(PrintStream out);
 
@@ -27,7 +32,7 @@ public interface Prompt<T> {
      * 
      * @param in  The input to read from.
      * @param out The output to write to.
-     * @return
+     * @return The value provided by the user.
      */
     default T execute(Scanner in, PrintStream out) {
         boolean shouldRead = true;

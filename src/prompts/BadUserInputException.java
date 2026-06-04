@@ -1,4 +1,4 @@
-package menu;
+package prompts;
 
 /**
  * Indicates that the user has provided a bad input.

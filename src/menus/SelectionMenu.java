@@ -1,9 +1,12 @@
-package menu;
+package menus;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import prompts.IntLimitedPrompt;
+import prompts.Prompt;
 
 public class SelectionMenu implements Menu<Integer> {
 

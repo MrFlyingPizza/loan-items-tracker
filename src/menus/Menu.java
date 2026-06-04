@@ -1,7 +1,9 @@
-package menu;
+package menus;
 
 import java.io.PrintStream;
 import java.util.Scanner;
+
+import prompts.Prompt;
 
 public interface Menu<T> {
     /**

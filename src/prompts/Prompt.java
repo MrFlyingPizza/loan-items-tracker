@@ -1,4 +1,4 @@
-package menu;
+package prompts;
 
 import java.io.PrintStream;
 import java.util.Scanner;

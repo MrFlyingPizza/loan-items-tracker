@@ -27,7 +27,7 @@ public class Loan {
         }
 
         if (loanedTo.isBlank()) {
-            throw new IllegalArgumentException("Name must not be blank.");
+            throw new IllegalArgumentException("Loaned to must not be blank.");
         }
 
         this.name = name;
@@ -59,7 +59,7 @@ public class Loan {
     public String toString() {
         var builder = new StringBuilder();
         builder.append(name)
-                .append("\n- published by ").append(name)
+                .append("\n- published by ").append(publisher)
                 .append("\n- loaned to ").append(loanedTo)
                 .append("\n- due on ").append(due).append(' ');
 

@@ -12,36 +12,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import loan.Loan;
-import menu.IntLimitedPrompt;
-import menu.IntPrompt;
-import menu.SelectionMenu;
-import menu.StringPrompt;
+import loans.Loan;
+import menus.SelectionMenu;
+import prompts.IntLimitedPrompt;
+import prompts.IntPrompt;
+import prompts.StringPrompt;
 
 public class LoanManagmentSystem {
-
-    private static class StringBuilderLoanAppender implements Consumer<Loan> {
-        private int counter = 1;
-
-        private final StringBuilder builder;
-
-        StringBuilderLoanAppender(StringBuilder builder) {
-            this.builder = builder;
-        }
-
-        @Override
-        public void accept(Loan loan) {
-            builder.append('#').append(counter++).append('\n').append(loan).append('\n');
-        }
-
-    }
 
     private static final List<Loan> LOANS = new ArrayList<>();
     private static final String SAVE_FILE_NAME = "loans.json";
@@ -71,7 +58,9 @@ public class LoanManagmentSystem {
         }
 
         MAIN_MENU = new SelectionMenu("Loan Items Tracker");
+
         MAIN_MENU.addOption("List All Items", (in, out) -> printLoans(LOANS, out));
+
         MAIN_MENU.addOption("Add an Item", (in, out) -> {
 
             var name = new StringPrompt("Enter the loan item's name: ").execute(in, out);
@@ -125,10 +114,22 @@ public class LoanManagmentSystem {
         MAIN_MENU.addOption("List Upcoming Items", (in, out) -> printLoans(
                 LOANS.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now())).toList(), out));
 
-        MAIN_MENU.addOption("Exit", LoanManagmentSystem::handleExit);
+        MAIN_MENU.addOption("Exit", (in, out) -> {
+            out.printf("Saving the loans to %s\n", SAVE_FILE);
+
+            try (var writer = new FileWriter(SAVE_FILE)) {
+                save(writer);
+
+                MAIN_MENU.stop();
+
+                out.println("Thank you for using our loan items tracker!");
+            } catch (IOException e) {
+                out.printf("Failed to save the loans: %s", e);
+            }
+        });
     }
 
-    private static void load(Reader reader) {
+    private static void load(Reader reader) throws JsonIOException, JsonSyntaxException {
         LOANS.addAll(GSON.fromJson(reader, TypeToken.getParameterized(List.class, Loan.class).getType()));
     }
 
@@ -141,23 +142,16 @@ public class LoanManagmentSystem {
         if (loans.isEmpty()) {
             builder.append("No items to show.");
         } else {
-            loans.stream().forEach(new StringBuilderLoanAppender(builder));
+            loans.stream().forEach(new Consumer<Loan>() {
+                private int counter = 1;
+
+                @Override
+                public void accept(Loan loan) {
+                    builder.append('#').append(counter++).append('\n').append(loan).append('\n');
+                }
+            });
         }
         out.println(builder);
-    }
-
-    private static void handleExit(Scanner in, PrintStream out) {
-        out.printf("Saving the loans to %s\n", SAVE_FILE);
-
-        try (var writer = new FileWriter(SAVE_FILE)) {
-            save(writer);
-
-            MAIN_MENU.stop();
-
-            out.println("Thank you for using our loan items tracker!");
-        } catch (IOException e) {
-            out.printf("Failed to save the loans: %s", e);
-        }
     }
 
     public static void main(String[] args) throws Exception {

@@ -26,12 +26,12 @@ import prompts.Validator;
 /**
  * Core class for managing loans.
  */
-public class LoanManagmentSystem {
+public class LoanItemsTracker {
 
     /**
      * Unused.
      */
-    private LoanManagmentSystem() {
+    private LoanItemsTracker() {
     }
 
     private static final List<Loan> LOANS = new ArrayList<>();

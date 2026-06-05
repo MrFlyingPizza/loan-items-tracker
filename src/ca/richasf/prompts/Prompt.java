@@ -1,4 +1,4 @@
-package prompts;
+package ca.richasf.prompts;
 
 import java.io.PrintStream;
 import java.util.Scanner;

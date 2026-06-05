@@ -1,4 +1,4 @@
-package menus;
+package ca.richasf.menus;
 
 import java.io.PrintStream;
 import java.util.Scanner;

@@ -1,4 +1,4 @@
-package prompts;
+package ca.richasf.prompts;
 
 /**
  * Indicates that the user's input cannot be parsed.

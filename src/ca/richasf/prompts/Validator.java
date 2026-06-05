@@ -1,4 +1,4 @@
-package prompts;
+package ca.richasf.prompts;
 
 /**
  * Validates a value that the user gave.

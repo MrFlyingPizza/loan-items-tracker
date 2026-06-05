@@ -1,4 +1,4 @@
-package menus;
+package ca.richasf.menus;
 
 /**
  * An option on the selection menu.

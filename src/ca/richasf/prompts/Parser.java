@@ -1,4 +1,4 @@
-package prompts;
+package ca.richasf.prompts;
 
 /**
  * Parses a string into a value.

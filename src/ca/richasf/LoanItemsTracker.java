@@ -1,3 +1,5 @@
+package ca.richasf;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -18,10 +20,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import loans.Loan;
-import menus.SelectionMenu;
-import prompts.Prompt;
-import prompts.Validator;
+import ca.richasf.loans.Loan;
+import ca.richasf.menus.SelectionMenu;
+import ca.richasf.prompts.Prompt;
+import ca.richasf.prompts.Validator;
 
 /**
  * Core class for managing loans.

@@ -1,4 +1,4 @@
-package loans;
+package ca.richasf.loans;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

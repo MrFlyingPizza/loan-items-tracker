@@ -1,4 +1,4 @@
-package menus;
+package ca.richasf.menus;
 
 import java.io.PrintStream;
 import java.time.LocalDate;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import prompts.Prompt;
-import prompts.Validator;
+import ca.richasf.prompts.Prompt;
+import ca.richasf.prompts.Validator;
 
 /**
  * A menu that allows the user to perform actions using through selections.

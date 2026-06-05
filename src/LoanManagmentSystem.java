@@ -17,11 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
 import loans.Loan;
 import menus.SelectionMenu;
 import prompts.Prompt;
@@ -45,17 +41,10 @@ public class LoanManagmentSystem {
     private static final SelectionMenu MAIN_MENU;
 
     static {
-        GSON = new GsonBuilder().registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>() {
-            @Override
-            public void write(JsonWriter out, LocalDate value) throws IOException {
-                out.value(value.toString());
-            }
-
-            @Override
-            public LocalDate read(JsonReader in) throws IOException {
-                return LocalDate.parse(in.nextString());
-            }
-        }).create();
+        GSON = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class,
+                        new LocalDateTypeAdapter())
+                .create();
 
         if (SAVE_FILE.exists()) {
             try (var reader = new FileReader(SAVE_FILE)) {
@@ -154,14 +143,35 @@ public class LoanManagmentSystem {
         });
     }
 
+    /**
+     * Read loans from a source.
+     * 
+     * @param reader The source.
+     * @throws JsonIOException     If JSON reading error occurs.
+     * @throws JsonSyntaxException If JSON is malformed.
+     */
     private static void load(Reader reader) throws JsonIOException, JsonSyntaxException {
-        LOANS.addAll(GSON.fromJson(reader, TypeToken.getParameterized(List.class, Loan.class).getType()));
+        LOANS.addAll(GSON.fromJson(reader,
+                TypeToken.getParameterized(List.class, Loan.class)
+                        .getType()));
     }
 
+    /**
+     * Write loans to a destination.
+     * 
+     * @param writer The destination.
+     * @throws IOException If writing loans fails.
+     */
     private static void save(Writer writer) throws IOException {
         writer.write(GSON.toJson(LOANS));
     }
 
+    /**
+     * Writes the given list of loans out.
+     * 
+     * @param loans The loans to write.
+     * @param out   The output to write to.
+     */
     private static void printLoans(List<Loan> loans, PrintStream out) {
         var builder = new StringBuilder();
         if (loans.isEmpty()) {

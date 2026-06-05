@@ -100,7 +100,8 @@ public class SelectionMenu {
 
         /* End banner */
         /* Start current date */
-        builder.append("Today is: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy MMMM dd")))
+        builder.append("Today is: ")
+                .append(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy MMMM dd")))
                 .append('\n');
         /* End current date */
 
@@ -120,11 +121,11 @@ public class SelectionMenu {
      * Prompts the user for a selection.
      */
     Prompt<Integer> prompt() {
-        var promptMessage = "Choose an option by entering 1-%d: ".formatted(options.size());
-        var errorMessage = "Invalid selection. Enter a number between 1 and %d".formatted(options.size());
         return Prompt.integer()
-                .message(promptMessage)
-                .error(errorMessage)
+                .message("Choose an option by entering 1-%d: "
+                        .formatted(options.size()))
+                .error("Invalid selection. Enter a number between 1 and %d"
+                        .formatted(options.size()))
                 .validator(Validator.boundedInt(1, options.size()));
     }
 

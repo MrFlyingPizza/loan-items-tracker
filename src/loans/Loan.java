@@ -75,6 +75,9 @@ public class Loan {
         return due;
     }
 
+    /**
+     * Convert to string representation.
+     */
     @Override
     public String toString() {
         var builder = new StringBuilder();
@@ -87,9 +90,13 @@ public class Loan {
 
         var daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), due);
         if (daysUntilDue > 0) {
-            builder.append("due in ").append(daysUntilDue).append(" days(s)");
+            builder.append("due in ")
+                    .append(daysUntilDue)
+                    .append(" days(s)");
         } else if (daysUntilDue < 0) {
-            builder.append("overdue by ").append(-daysUntilDue).append(" days(s)");
+            builder.append("overdue by ")
+                    .append(-daysUntilDue)
+                    .append(" days(s)");
         } else {
             builder.append("due today");
         }

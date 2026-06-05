@@ -92,6 +92,8 @@ public class Prompt<T> {
                 shouldRead = false;
             } catch (ParseException | ValidateException e) {
                 out.println(error == null ? e : error);
+            } catch (Exception e) {
+                out.printf("An unknown error occurred: %s\n", e);
             }
         }
         return value;

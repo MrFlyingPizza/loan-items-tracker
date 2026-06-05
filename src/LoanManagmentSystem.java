@@ -73,18 +73,18 @@ public class LoanManagmentSystem {
 
             var name = Prompt.string()
                     .message("Enter the loan item's name: ")
-                    .error("The loan's item name must not be blank.")
+                    .error("The loan's item name must not be blank")
                     .validator(Validator.notBlank())
                     .run(in, out);
 
             var yearDue = Prompt.integer()
                     .message("Enter the year of the due date (e.g., 2026): ")
-                    .error("Please enter a valid year.")
+                    .error("Please enter a valid year")
                     .run(in, out);
 
             var monthDue = Prompt.integer()
                     .message("Enter the month of the due date (1-12): ")
-                    .error("Please enter a valid month between 1 and 12.")
+                    .error("Please enter a valid month between 1 and 12")
                     .validator(Validator.boundedInt(1, 12))
                     .run(in, out);
 
@@ -92,7 +92,7 @@ public class LoanManagmentSystem {
 
             var dayDue = Prompt.integer()
                     .message("Enter the day of the due date in the year and month (1-%d): ".formatted(maxDay))
-                    .error("Please enter a valid month between 1 and %d.".formatted(maxDay))
+                    .error("Please enter a valid month between 1 and %d".formatted(maxDay))
                     .validator(Validator.boundedInt(1, maxDay))
                     .run(in, out);
 
@@ -102,7 +102,7 @@ public class LoanManagmentSystem {
 
             var loanedTo = Prompt.string()
                     .message("Enter the name to which the item is loaned: ")
-                    .error("The loaned-to person must not be blank.")
+                    .error("The loaned-to person must not be blank")
                     .validator(Validator.notBlank())
                     .run(in, out);
 
@@ -124,11 +124,12 @@ public class LoanManagmentSystem {
                     .run(in, out);
 
             if (selection == 0) {
-                out.println("Item removal cancelled.");
+                out.println("Item removal cancelled");
                 return;
             }
 
             LOANS.remove(selection - 1);
+            out.println("Removed item #%d".formatted(selection));
         });
 
         MAIN_MENU.addOption("List Overdue Items",
@@ -164,7 +165,7 @@ public class LoanManagmentSystem {
     private static void printLoans(List<Loan> loans, PrintStream out) {
         var builder = new StringBuilder();
         if (loans.isEmpty()) {
-            builder.append("No items to show.");
+            builder.append("No items to show");
         } else {
             loans.stream().forEach(new Consumer<Loan>() {
                 private int counter = 1;

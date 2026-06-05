@@ -80,7 +80,8 @@ public class LoanManagmentSystem {
             var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
 
             var dayDue = Prompt.integer()
-                    .message("Enter the day of the due date in the year and month (1-%d): ".formatted(maxDay))
+                    .message("Enter the day of the due date in the year and month (1-%d): "
+                            .formatted(maxDay))
                     .error("Please enter a valid month between 1 and %d".formatted(maxDay))
                     .validator(Validator.boundedInt(1, maxDay))
                     .run(in, out);
@@ -108,7 +109,8 @@ public class LoanManagmentSystem {
             printLoans(LOANS, out);
             var selection = Prompt.integer()
                     .message("Enter the item number you want to remove (0 to cancel): ")
-                    .error("Invalid selection. Enter a number between 0 and %d".formatted(LOANS.size()))
+                    .error("Invalid selection. Enter a number between 0 and %d"
+                            .formatted(LOANS.size()))
                     .validator(Validator.boundedInt(0, LOANS.size()))
                     .run(in, out);
 
@@ -121,12 +123,16 @@ public class LoanManagmentSystem {
             out.println("Removed item #%d".formatted(selection));
         });
 
-        MAIN_MENU.addOption("List Overdue Items",
-                (in, out) -> printLoans(LOANS.stream().filter(loan -> loan.getDue().isBefore(LocalDate.now())).toList(),
-                        out));
+        MAIN_MENU.addOption("List Overdue Items", (in, out) -> printLoans(LOANS.stream()
+                .filter(loan -> loan.getDue().isBefore(LocalDate.now()))
+                .toList(),
+                out));
 
         MAIN_MENU.addOption("List Upcoming Items", (in, out) -> printLoans(
-                LOANS.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now())).toList(), out));
+                LOANS.stream()
+                        .filter(loan -> !loan.getDue().isBefore(LocalDate.now()))
+                        .toList(),
+                out));
 
         MAIN_MENU.addOption("Exit", (in, out) -> {
             out.printf("Saving the loans to %s\n", SAVE_FILE);

@@ -4,46 +4,94 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
- * Defines the behaviour of a prompt.
+ * A prompt for the user to input a value.
  * 
- * @param <T> What kind of value this prompt is for.
+ * @param <T> The type of value this prompt asks for.
  */
-public interface Prompt<T> {
+public class Prompt<T> {
 
     /**
-     * Tell the user what you want.
+     * Get a prompt that asks for an integer.
      * 
-     * @param out Output to write to.
+     * @return The prompt.
      */
-    void request(PrintStream out);
+    public static Prompt<Integer> integer() {
+        return new Prompt<>(Integer::parseInt);
+    }
 
     /**
-     * Read a value.
+     * Get a prompt that asks for a string.
      * 
-     * @param in The input.
-     * @return The value read.
-     * @throws BadUserInputException Indicate that the user input was bad.
+     * @return The prompt.
      */
-    T receive(Scanner in) throws BadUserInputException;
+    public static Prompt<String> string() {
+        return new Prompt<>((v) -> v);
+    }
+
+    private String message, error;
+    private Parser<T> parser;
+    private Validator<T> validator = Validator.pass();
 
     /**
-     * Execute the prompt by asking the user and reading until a satisfactory value
-     * is read.
+     * Creates a prompt.
+     * 
+     * @param parser The parser to parse an input line into a value.
+     */
+    Prompt(Parser<T> parser) {
+        this.parser = parser;
+    }
+
+    /**
+     * Fluent API for setting the request message.
+     * 
+     * @param message The request message.
+     * @return This prompt.
+     */
+    public Prompt<T> message(String message) {
+        this.message = message;
+        return this;
+    }
+
+    /**
+     * Fluent API for setting the error message.
+     * 
+     * @param error The error message.
+     * @return This prompt.
+     */
+    public Prompt<T> error(String error) {
+        this.error = error;
+        return this;
+    }
+
+    /**
+     * Fluent API for setting the validator.
+     * 
+     * @param validator The validator.
+     * @return This prompt.
+     */
+    public Prompt<T> validator(Validator<T> validator) {
+        this.validator = validator;
+        return this;
+    }
+
+    /**
+     * Prompts the user.
      * 
      * @param in  The input to read from.
      * @param out The output to write to.
-     * @return The value provided by the user.
+     * @return Value given by user.
      */
-    default T execute(Scanner in, PrintStream out) {
+    public T run(Scanner in, PrintStream out) {
         boolean shouldRead = true;
         T value = null;
         while (shouldRead) {
-            request(out);
+            out.print(message == null ? this : message);
             try {
-                value = receive(in);
+                value = parser.parse(in.nextLine());
+                validator.validate(value);
                 shouldRead = false;
-            } catch (BadUserInputException e) {
-                out.println(e.getMessage());
+            } catch (ParseException | ValidateException e) {
+                out.println(error == null ? e : error);
             }
         }
         return value;

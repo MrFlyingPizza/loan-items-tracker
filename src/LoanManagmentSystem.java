@@ -24,9 +24,8 @@ import com.google.gson.stream.JsonWriter;
 
 import loans.Loan;
 import menus.SelectionMenu;
-import prompts.IntLimitedPrompt;
-import prompts.IntPrompt;
-import prompts.StringPrompt;
+import prompts.Prompt;
+import prompts.Validator;
 
 /**
  * Core class for managing loans.
@@ -72,30 +71,40 @@ public class LoanManagmentSystem {
 
         MAIN_MENU.addOption("Add an Item", (in, out) -> {
 
-            var name = new StringPrompt("Enter the loan item's name: ").execute(in, out);
+            var name = Prompt.string()
+                    .message("Enter the loan item's name: ")
+                    .error("The loan's item name must not be blank.")
+                    .validator(Validator.notBlank())
+                    .run(in, out);
 
-            // TODO: ensure certain strings not blank
+            var yearDue = Prompt.integer()
+                    .message("Enter the year of the due date (e.g., 2026): ")
+                    .error("Please enter a valid year.")
+                    .run(in, out);
 
-            var yearDue = new IntPrompt("Enter the year of the due date (e.g., 2026): ", "Please enter a valid year.")
-                    .execute(in, out);
-
-            var monthDue = new IntLimitedPrompt(
-                    Month.JANUARY.getValue(),
-                    Month.DECEMBER.getValue(),
-                    "Enter the month of the due date (%d-%d): ".formatted(Month.JANUARY.getValue(),
-                            Month.DECEMBER.getValue()),
-                    "Please enter a valid month between 1 and 12.").execute(in, out);
+            var monthDue = Prompt.integer()
+                    .message("Enter the month of the due date (1-12): ")
+                    .error("Please enter a valid month between 1 and 12.")
+                    .validator(Validator.boundedInt(1, 12))
+                    .run(in, out);
 
             var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
-            var dayDue = new IntLimitedPrompt(
-                    1,
-                    maxDay,
-                    "Enter the day of the due date in the year and month (1-%d): ".formatted(maxDay),
-                    "Please enter a valid month between 1 and %d.".formatted(maxDay)).execute(in, out);
 
-            var publisher = new StringPrompt("Enter the publisher of the loan item: ").execute(in, out);
+            var dayDue = Prompt.integer()
+                    .message("Enter the day of the due date in the year and month (1-%d): ".formatted(maxDay))
+                    .error("Please enter a valid month between 1 and %d.".formatted(maxDay))
+                    .validator(Validator.boundedInt(1, maxDay))
+                    .run(in, out);
 
-            var loanedTo = new StringPrompt("Enter the name to which the item is loaned: ").execute(in, out);
+            var publisher = Prompt.string()
+                    .message("Enter the publisher of the loan item: ")
+                    .run(in, out);
+
+            var loanedTo = Prompt.string()
+                    .message("Enter the name to which the item is loaned: ")
+                    .error("The loaned-to person must not be blank.")
+                    .validator(Validator.notBlank())
+                    .run(in, out);
 
             var due = LocalDate.of(yearDue, monthDue, dayDue);
 
@@ -108,9 +117,12 @@ public class LoanManagmentSystem {
 
         MAIN_MENU.addOption("Remove an Item", (in, out) -> {
             printLoans(LOANS, out);
-            var selection = new IntLimitedPrompt(0, LOANS.size(),
-                    "Enter the item number you want to remove (0 to cancel): ",
-                    "Invalid selection. Enter a number between 0 and %d".formatted(LOANS.size())).execute(in, out);
+            var selection = Prompt.integer()
+                    .message("Enter the item number you want to remove (0 to cancel): ")
+                    .error("Invalid selection. Enter a number between 0 and %d".formatted(LOANS.size()))
+                    .validator(Validator.boundedInt(0, LOANS.size()))
+                    .run(in, out);
+
             if (selection == 0) {
                 out.println("Item removal cancelled.");
                 return;

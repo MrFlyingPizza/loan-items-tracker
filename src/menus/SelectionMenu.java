@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import prompts.IntLimitedPrompt;
 import prompts.Prompt;
+import prompts.Validator;
 
 /**
  * A menu that allows the user to perform actions using through selections.
  */
-public class SelectionMenu implements Menu<Integer> {
+public class SelectionMenu {
 
     private static record Option(String name, MenuAction action) {
     }
@@ -34,6 +34,13 @@ public class SelectionMenu implements Menu<Integer> {
     }
 
     /**
+     * Stop the menu from cycling.
+     */
+    public void stop() {
+        running = false;
+    }
+
+    /**
      * Add an option for the user to select from.
      * 
      * @param name   The name of the option shown to the user.
@@ -44,12 +51,29 @@ public class SelectionMenu implements Menu<Integer> {
     }
 
     /**
+     * Start the display->prompt->dispatch cycle.
+     * 
+     * @param in  The input to read from.
+     * @param out The output to write to.
+     */
+    public void run(Scanner in, PrintStream out) {
+        if (options.size() <= 0) {
+            throw new RuntimeException("Cannot run menu when there is no option");
+        }
+
+        while (running) {
+            display(out);
+            var value = prompt().run(in, out);
+            dispatch(value, in, out);
+        }
+    }
+
+    /**
      * Write the menu to the output.
      * 
      * @param out The output.
      */
-    @Override
-    public void display(PrintStream out) {
+    void display(PrintStream out) {
         /* Start banner */
         final var C = "#";
         final var S = ' ';
@@ -93,48 +117,21 @@ public class SelectionMenu implements Menu<Integer> {
     }
 
     /**
-     * Stop the menu from cycling.
-     */
-    @Override
-    public void stop() {
-        running = false;
-    }
-
-    /**
-     * Run the selection menu cycle.
-     */
-    @Override
-    public void run(Scanner in, PrintStream out) {
-        if (options.size() <= 0) {
-            throw new RuntimeException("Cannot run menu when there is no option");
-        }
-
-        Menu.super.run(in, out);
-    }
-
-    /**
      * Prompts the user for a selection.
      */
-    @Override
-    public Prompt<Integer> prompt() {
+    Prompt<Integer> prompt() {
         var promptMessage = "Choose an option by entering 1-%d: ".formatted(options.size());
         var errorMessage = "Invalid selection. Enter a number between 1 and %d".formatted(options.size());
-        return new IntLimitedPrompt(1, options.size(), promptMessage, errorMessage);
-    }
-
-    /**
-     * Check if the selection menu is still cycling.
-     */
-    @Override
-    public boolean isRunning() {
-        return running;
+        return Prompt.integer()
+                .message(promptMessage)
+                .error(errorMessage)
+                .validator(Validator.boundedInt(1, options.size()));
     }
 
     /**
      * Dispatch the user's selection.
      */
-    @Override
-    public void dispatch(Integer selection, Scanner in, PrintStream out) {
+    void dispatch(Integer selection, Scanner in, PrintStream out) {
         options.get(selection - 1).action().perform(in, out);
     }
 }

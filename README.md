@@ -26,5 +26,5 @@ javac -d bin src/ca/richasf/**/*.java
 Run this command to run.
 
 ```sh
-javac -d bin src/ca/richasf/**/*.java
+java -cp lib/*:bin ca.richasf.LoanItemsTracker
 ```

@@ -11,12 +11,27 @@ import java.util.Scanner;
 public class Prompt<T> {
 
     /**
+     * Parses a string to an integer.
+     * 
+     * @param raw The raw string.
+     * @return The parsed int.
+     * @throws ParseException If the string is not an int.
+     */
+    private static Integer parseInt(String raw) throws ParseException {
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            throw new ParseException();
+        }
+    }
+
+    /**
      * Get a prompt that asks for an integer.
      * 
      * @return The prompt.
      */
     public static Prompt<Integer> integer() {
-        return new Prompt<>(Integer::parseInt);
+        return new Prompt<>(Prompt::parseInt);
     }
 
     /**

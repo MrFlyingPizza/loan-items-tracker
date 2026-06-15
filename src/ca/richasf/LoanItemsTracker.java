@@ -37,7 +37,7 @@ public class LoanItemsTracker {
     }
 
     private static final List<Loan> LOANS = new ArrayList<>();
-    private static final String SAVE_FILE_NAME = "loans.json";
+    private static final String SAVE_FILE_NAME = "./list.json";
     private static final File SAVE_FILE = new File(SAVE_FILE_NAME);
     private static final Gson GSON;
     private static final SelectionMenu MAIN_MENU;
@@ -121,8 +121,11 @@ public class LoanItemsTracker {
                 return;
             }
 
-            LOANS.remove(selection - 1);
-            out.println("Removed item #%d".formatted(selection));
+            var index = selection - 1;
+            var toRemove = LOANS.get(index);
+            LOANS.remove(index);
+
+            out.println("Removed item '%s'".formatted(toRemove.getName()));
         });
 
         MAIN_MENU.addOption("List Overdue Items", (in, out) -> printLoans(LOANS.stream()

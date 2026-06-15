@@ -1,0 +1,86 @@
+# Use Cases
+
+## List All Items: Has Items to Display
+1. The user starts Loan Items Tracker with an existing list of loan items saved.
+2. The program prompts the user with a list of options.
+3. The user enters the valid option number 1, "List All Items".
+4. The program prints a list of all loan items current stored in the system.
+5. The program prompts the user with a list of options.
+6. The user enters the valid option number 7, "Exit".
+7. The program saves all loan items to the save file and prints a message.
+
+## List All Items: No Item to Display
+1. The user starts Loan Items Tracker for the first time with no save file.
+2. The program prompts the user with a list of options.
+3. The user enters the valid option number 1, "List All Items".
+4. The program displays, "No loan item to display."
+5. The program prompts the user with a list of options.
+6. The user enters the valid option number 7, "Exit".
+7. The program creates a save file with no item, thanks the user, and exits.
+
+## Add an Item: Valid User Inputs
+1. The user starts Loan Items Tracker regardless of a save file exists or not.
+2. The program prompts the user with a list of options.
+3. The user enters the valid option number 2, "Add an Item".
+4. The program prompts the user for the loan item's name.
+5. The user enters a valid name for the loan item.
+6. The program prompts the user for the year of the due date for the loan item.
+7. The user enters a valid year number of the loan item's due date.
+8. The program prompts the user for the month of the due date for the loan item.
+9. The user enters a valid month number for the loan item's due date.
+10. The program prompts the user for the day of the due date for the loan item with a range based on the prior year and month.
+11. The user enters a valid day number for the loan item's due date.
+12. The program prompts the user for the publisher.
+13. The user enters a valid publisher for the loan item.
+14. The program prompts the user for the name of the loaned-to person.
+15. The user enters a valid name for the loaned-to person.
+16. The program adds the new loan item to the list.
+17. The program displays that the name of the new item has been added to the list.
+18. The program prompts the user with a list of options.
+19. The user enters the valid option number 7, "Exit".
+20. The program saves the new item to the save file, thanks the user, and exits.
+
+## Add an Item: Blank Loan Item Name
+1. The user starts Loan Items Tracker regardless of a save file exists or not.
+2. The program prompts the user with a list of options.
+3. The user enters the valid option number 2, "Add an Item".
+4. The program prompts the user for the loan item's name.
+5. The user enters only spaces or tabs for the loan item's name.
+6. The program rejects the input by displaying that the loan item's name is invalid.
+7. The program prompts the user for the loan item's name, again.
+8. The user enters a valid name for the loan item.
+9. The program prompts the user for the year of the due date for the loan item.
+10. The user enters a valid year number of the loan item's due date.
+11. The program prompts the user for the month of the due date for the loan item.
+12. The user enters a valid month number for the loan item's due date.
+13. The program prompts the user for the day of the due date for the loan item with a range based on the prior year and month.
+14. The user enters a valid day number for the loan item's due date.
+15. The program prompts the user for the publisher.
+16. The user enters a valid publisher for the loan item.
+17. The program prompts the user for the name of the loaned-to person.
+18. The user enters a valid name for the loaned-to person.
+19. The program adds the new loan item to the list.
+20. The program displays that the name of the new item has been added to the list.
+21. The program prompts the user with a list of options.
+22. The user enters the valid option number 7, "Exit".
+23. The program saves the new item to the save file, thanks the user, and exits.
+
+## Remove an Item: Valid Item Selection
+1. The user starts Loan Items Tracker with 2 existing loan items loaded from the save file.
+2. The program prompts the user with a list of options.
+3. The user enters the valid option number 3, "Remove an Item".
+4. The program displays each loan item with an index number and prompts for an index number to remove.
+5. The user enters the valid index number 2.
+6. The program removes the 2nd loan item from the list of loan items.
+7. The program prompts the user with a list of options.
+8. The user enters the valid option number 7, "Exit".
+9. The program saves the single item to the save file, thanks the user, and exits.
+
+## Remove an Item: No Item
+1. The user starts Loan Items Tracker with no save file or a save file with no loan item.
+2. The program prompts the user with a list of options.
+3. The user enters the valid option number 3, "Remove an Item".
+4. The program displays, "No item to remove."
+5. The program prompts the user with a list of options.
+6. The user enters the valid option number 7, "Exit".
+7. The program creates a save file with no item, thanks the user, and exits.

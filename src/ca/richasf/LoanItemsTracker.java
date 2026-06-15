@@ -108,6 +108,11 @@ public class LoanItemsTracker {
         });
 
         MAIN_MENU.addOption("Remove an Item", (in, out) -> {
+            if (LOANS.size() == 0) {
+                out.println("There is currently no loan to remove.");
+                return;
+            }
+
             printLoans(LOANS, out);
             var selection = Prompt.integer()
                     .message("Enter the item number you want to remove (0 to cancel): ")
@@ -125,7 +130,7 @@ public class LoanItemsTracker {
             var toRemove = LOANS.get(index);
             LOANS.remove(index);
 
-            out.println("Removed item '%s'".formatted(toRemove.getName()));
+            out.println("%s has been removed from the list.".formatted(toRemove.getName()));
         });
 
         MAIN_MENU.addOption("List Overdue Items", (in, out) -> printLoans(LOANS.stream()

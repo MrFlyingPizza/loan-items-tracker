@@ -20,7 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import ca.richasf.loans.Loan;
+import ca.richasf.loans.LoanItem;
 import ca.richasf.menus.SelectionMenu;
 import ca.richasf.prompts.Prompt;
 import ca.richasf.prompts.Validator;
@@ -36,7 +36,7 @@ public class LoanItemsTracker {
     private LoanItemsTracker() {
     }
 
-    private static final List<Loan> LOANS = new ArrayList<>();
+    private static final List<LoanItem> LOANS = new ArrayList<>();
     private static final String SAVE_FILE_NAME = "./list.json";
     private static final File SAVE_FILE = new File(SAVE_FILE_NAME);
     private static final Gson GSON;
@@ -100,7 +100,7 @@ public class LoanItemsTracker {
 
             var due = LocalDate.of(yearDue, monthDue, dayDue);
 
-            var loan = new Loan(name, publisher, loanedTo, due);
+            var loan = new LoanItem(name, publisher, loanedTo, due);
 
             LOANS.add(loan);
 
@@ -168,7 +168,7 @@ public class LoanItemsTracker {
      */
     private static void load(Reader reader) throws JsonIOException, JsonSyntaxException {
         LOANS.addAll(GSON.fromJson(reader,
-                TypeToken.getParameterized(List.class, Loan.class)
+                TypeToken.getParameterized(List.class, LoanItem.class)
                         .getType()));
     }
 
@@ -188,16 +188,16 @@ public class LoanItemsTracker {
      * @param loans The loans to write.
      * @param out   The output to write to.
      */
-    private static void printLoans(List<Loan> loans, PrintStream out) {
+    private static void printLoans(List<LoanItem> loans, PrintStream out) {
         var builder = new StringBuilder();
         if (loans.isEmpty()) {
             builder.append("No items to show");
         } else {
-            loans.stream().forEach(new Consumer<Loan>() {
+            loans.stream().forEach(new Consumer<LoanItem>() {
                 private int counter = 1;
 
                 @Override
-                public void accept(Loan loan) {
+                public void accept(LoanItem loan) {
                     builder.append('#').append(counter++).append('\n').append(loan).append('\n');
                 }
             });

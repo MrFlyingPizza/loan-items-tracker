@@ -22,15 +22,15 @@ public final class LoanItemFactory {
         return Optional.ofNullable(PROMPTS.get(type)).map(Supplier::get);
     }
 
-    public BookLoanItem promptBookLoanItem() {
+    private BookLoanItem promptBookLoanItem() {
         return null; // TODO
     }
 
-    public AudioLoanItem promptAudioLoanItem() {
+    private AudioLoanItem promptAudioLoanItem() {
         return null; // TODO
     }
 
-    public MovieLoanItem promptMovieLoanItem() {
+    private MovieLoanItem promptMovieLoanItem() {
         return null; // TODO
     }
 }

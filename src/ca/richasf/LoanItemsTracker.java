@@ -22,7 +22,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import ca.richasf.model.LoanItem;
-import ca.richasf.model.LoanItemFactory;
 import ca.richasf.textui.Prompt;
 import ca.richasf.textui.SelectionMenu;
 import ca.richasf.textui.Validator;
@@ -105,7 +104,7 @@ public class LoanItemsTracker {
 
             var due = LocalDate.of(yearDue, monthDue, dayDue);
 
-            var loan = LOAN_ITEM_FACTORY.getInstance(name, publisher, loanedTo, due);
+            var loan = new LoanItem(name, publisher, loanedTo, due) {};
 
             LOANS.add(loan);
 

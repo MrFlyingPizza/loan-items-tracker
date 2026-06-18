@@ -20,7 +20,7 @@ public abstract class LoanItem implements Comparable<LoanItem> {
      * @param loanedTo  The person that the item was loaned to. Must not be blank.
      * @param due       When the loan is due for return. Must not be blank.
      */
-    LoanItem(String name, String publisher, String loanedTo, LocalDate due) {
+    public LoanItem(String name, String publisher, String loanedTo, LocalDate due) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(publisher);
         Objects.requireNonNull(loanedTo);

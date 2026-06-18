@@ -37,7 +37,6 @@ public class LoanItemsTracker {
     private LoanItemsTracker() {
     }
 
-    private static final LoanItemFactory LOAN_ITEM_FACTORY;
     private static final List<LoanItem> LOANS = new ArrayList<>();
     private static final String SAVE_FILE_NAME = "./list.json";
     private static final File SAVE_FILE = new File(SAVE_FILE_NAME);
@@ -45,7 +44,6 @@ public class LoanItemsTracker {
     private static final SelectionMenu MAIN_MENU;
 
     static {
-        LOAN_ITEM_FACTORY = new LoanItemFactory();
 
         GSON = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class,

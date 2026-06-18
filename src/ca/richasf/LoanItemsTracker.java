@@ -20,10 +20,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import ca.richasf.loans.LoanItem;
 import ca.richasf.menus.SelectionMenu;
 import ca.richasf.prompts.Prompt;
 import ca.richasf.prompts.Validator;
+import ca.richasf.loans.LoanItem;
+import ca.richasf.loans.LoanItemFactory;
 
 /**
  * Core class for managing loans.
@@ -36,6 +37,7 @@ public class LoanItemsTracker {
     private LoanItemsTracker() {
     }
 
+    private static final LoanItemFactory LOAN_ITEM_FACTORY;
     private static final List<LoanItem> LOANS = new ArrayList<>();
     private static final String SAVE_FILE_NAME = "./list.json";
     private static final File SAVE_FILE = new File(SAVE_FILE_NAME);
@@ -43,6 +45,8 @@ public class LoanItemsTracker {
     private static final SelectionMenu MAIN_MENU;
 
     static {
+        LOAN_ITEM_FACTORY = new LoanItemFactory();
+
         GSON = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class,
                         new LocalDateTypeAdapter())
@@ -100,7 +104,7 @@ public class LoanItemsTracker {
 
             var due = LocalDate.of(yearDue, monthDue, dayDue);
 
-            var loan = new LoanItem(name, publisher, loanedTo, due);
+            var loan = LOAN_ITEM_FACTORY.getInstance(name, publisher, loanedTo, due);
 
             LOANS.add(loan);
 

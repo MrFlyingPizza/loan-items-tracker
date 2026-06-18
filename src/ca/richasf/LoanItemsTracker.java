@@ -20,11 +20,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import ca.richasf.menus.SelectionMenu;
-import ca.richasf.prompts.Prompt;
-import ca.richasf.prompts.Validator;
-import ca.richasf.loans.LoanItem;
-import ca.richasf.loans.LoanItemFactory;
+
+import ca.richasf.model.LoanItem;
+import ca.richasf.model.LoanItemFactory;
+import ca.richasf.textui.Prompt;
+import ca.richasf.textui.SelectionMenu;
+import ca.richasf.textui.Validator;
 
 /**
  * Core class for managing loans.

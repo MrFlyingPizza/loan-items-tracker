@@ -1,4 +1,4 @@
-package ca.richasf.prompts;
+package ca.richasf.textui;
 
 /**
  * Indicates that the user has provided a bad input.

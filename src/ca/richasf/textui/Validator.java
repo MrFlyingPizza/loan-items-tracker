@@ -1,4 +1,4 @@
-package ca.richasf.prompts;
+package ca.richasf.textui;
 
 /**
  * Validates a value that the user gave.

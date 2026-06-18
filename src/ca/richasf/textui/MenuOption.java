@@ -1,4 +1,4 @@
-package ca.richasf.menus;
+package ca.richasf.textui;
 
 /**
  * An option on the selection menu.

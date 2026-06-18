@@ -1,4 +1,4 @@
-package ca.richasf.prompts;
+package ca.richasf.textui;
 
 /**
  * Parses a string into a value.

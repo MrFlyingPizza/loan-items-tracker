@@ -1,4 +1,4 @@
-package ca.richasf.menus;
+package ca.richasf.textui;
 
 import java.io.PrintStream;
 import java.util.Scanner;

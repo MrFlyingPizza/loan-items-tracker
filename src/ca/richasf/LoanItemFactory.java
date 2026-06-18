@@ -1,9 +1,5 @@
 package ca.richasf;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import ca.richasf.model.AudioLoanItem;
 import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
@@ -15,13 +11,13 @@ import ca.richasf.model.MovieLoanItem;
 public final class LoanItemFactory {
     public static final String BOOK = "book", AUDIO = "audio", MOVIE = "movie";
 
-    private static final Map<String, Supplier<LoanItem>> PROMPTS = Map.of(
-                BOOK, LoanItemFactory::promptBookLoanItem,
-                AUDIO, LoanItemFactory::promptAudioLoanItem,
-                MOVIE, LoanItemFactory::promptMovieLoanItem);
-
-    public static Optional<LoanItem> getInstance(String type) {
-        return Optional.ofNullable(PROMPTS.get(type)).map(Supplier::get);
+    public static LoanItem getInstance(String type) throws UnknownLoanItemTypeException {
+        return switch (type) {
+            case BOOK -> promptBookLoanItem();
+            case AUDIO -> promptAudioLoanItem();
+            case MOVIE -> promptMovieLoanItem();
+            default -> throw new UnknownLoanItemTypeException();
+        };
     }
 
     private static BookLoanItem promptBookLoanItem() {

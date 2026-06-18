@@ -12,25 +12,25 @@ import ca.richasf.model.MovieLoanItem;
 /**
  * A factory that prompts the user to create loan items.
  */
-public interface LoanItemFactory {
-    Map<String, Supplier<LoanItem>> PROMPTS = Map.of(
-                "book", LoanItemFactory::promptBookLoanItem,
-                "audio", LoanItemFactory::promptAudioLoanItem,
-                "movie", LoanItemFactory::promptMovieLoanItem);
+public final class LoanItemFactory {
+    private final Map<String, Supplier<LoanItem>> PROMPTS = Map.of(
+            "book", this::promptBookLoanItem,
+            "audio", this::promptAudioLoanItem,
+            "movie", this::promptMovieLoanItem);
 
-    static Optional<LoanItem> getInstance(String type) {
+    public Optional<LoanItem> getInstance(String type) {
         return Optional.ofNullable(PROMPTS.get(type)).map(Supplier::get);
     }
 
-    static BookLoanItem promptBookLoanItem() {
+    public BookLoanItem promptBookLoanItem() {
         return null; // TODO
     }
 
-    static AudioLoanItem promptAudioLoanItem() {
+    public AudioLoanItem promptAudioLoanItem() {
         return null; // TODO
     }
 
-    static MovieLoanItem promptMovieLoanItem() {
+    public MovieLoanItem promptMovieLoanItem() {
         return null; // TODO
     }
 }

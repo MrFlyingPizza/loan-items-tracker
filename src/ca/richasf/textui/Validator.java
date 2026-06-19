@@ -27,7 +27,7 @@ public interface Validator<T> {
      * @param max The maximum int inclusive.
      * @return The validator.
      */
-    static Validator<Integer> boundedInt(int min, int max) {
+    static Validator<Integer> bound(int min, int max) {
         return (value) -> {
             if (value < min || value > max) {
                 throw new ValidateException();

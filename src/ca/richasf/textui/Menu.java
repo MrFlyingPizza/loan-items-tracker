@@ -118,7 +118,7 @@ public class Menu {
                         .formatted(options.size()))
                 .error("Invalid selection. Enter a number between 1 and %d"
                         .formatted(options.size()))
-                .validator(Validator.boundedInt(1, options.size()));
+                .validator(Validator.bound(1, options.size()));
     }
 
     /**

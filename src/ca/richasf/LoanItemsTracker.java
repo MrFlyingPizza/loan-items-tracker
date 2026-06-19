@@ -113,7 +113,7 @@ public class LoanItemsTracker {
                     .message("Enter the item number you want to remove (0 to cancel): ")
                     .error("Invalid selection. Enter a number between 0 and %d"
                             .formatted(loans.size()))
-                    .validator(Validator.boundedInt(0, loans.size()))
+                    .validator(Validator.bound(0, loans.size()))
                     .run(in, out);
 
             if (selection == 0) {
@@ -169,7 +169,7 @@ public class LoanItemsTracker {
         var monthDue = Prompt.integer()
                 .message("Enter the month of the due date (1-12): ")
                 .error("Please enter a valid month between 1 and 12")
-                .validator(Validator.boundedInt(1, 12))
+                .validator(Validator.bound(1, 12))
                 .run(input, output);
 
         var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
@@ -178,7 +178,7 @@ public class LoanItemsTracker {
                 .message("Enter the day of the due date in the year and month (1-%d): "
                         .formatted(maxDay))
                 .error("Please enter a valid month between 1 and %d".formatted(maxDay))
-                .validator(Validator.boundedInt(1, maxDay))
+                .validator(Validator.bound(1, maxDay))
                 .run(input, output);
 
         loanItem.setDue(LocalDate.of(yearDue, monthDue, dayDue));

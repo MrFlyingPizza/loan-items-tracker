@@ -2,6 +2,7 @@ package ca.richasf.textui;
 
 import java.io.PrintStream;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 /**
  * A prompt for the user to input a value.
@@ -90,7 +91,7 @@ public class Prompt<T> {
     }
 
     /**
-     * Prompts the user.
+     * Prompts the user and returns the value.
      * 
      * @param in  The input to read from.
      * @param out The output to write to.
@@ -112,5 +113,16 @@ public class Prompt<T> {
             }
         }
         return value;
+    }
+
+    /**
+     * Prompts the user with callback.
+     * @param in  The input to read from.
+     * @param out The output to write to.
+     * @param callback The callback to accept the value.
+     */
+    public void run(Scanner in, PrintStream out, Consumer<T> callback) {
+        var value = run(in, out);
+        callback.accept(value);
     }
 }

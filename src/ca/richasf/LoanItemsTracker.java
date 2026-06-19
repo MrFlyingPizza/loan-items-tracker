@@ -31,9 +31,6 @@ import ca.richasf.textui.Validator;
  */
 public class LoanItemsTracker {
 
-    /**
-     * Unused.
-     */
     private LoanItemsTracker() {
     }
 

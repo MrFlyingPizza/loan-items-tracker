@@ -11,11 +11,8 @@ import java.util.Scanner;
  * A menu that allows the user to perform actions using through selections.
  */
 public class Menu {
-
     private final String title;
-
     private final List<MenuOption> options = new ArrayList<>();
-
     private boolean running = true;
 
     /**
@@ -112,7 +109,8 @@ public class Menu {
     }
 
     /**
-     * Prompts the user for a selection.
+     * Creates the prompt to show the user to get a selection.
+     * @return The prompt to prompt the user with.
      */
     Prompt<Integer> prompt() {
         return Prompt.integer()

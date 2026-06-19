@@ -1,16 +1,26 @@
 package ca.richasf.model;
 
-import java.time.LocalDate;
+import java.time.Duration;
 
 public final class AudioLoanItem extends LoanItem {
-    private final int length;
+    private Duration length;
 
-    AudioLoanItem(String name, String publisher, String loanedTo, LocalDate due, int length) {
-        super(name, publisher, loanedTo, due);
-        this.length = length;
+    public AudioLoanItem() {
     }
     
-    public int getLength() {
+    /**
+     * Get the audio length.
+     * @return The audio length.
+     */
+    public Duration getLength() {
         return length;
+    }
+
+    /**
+     * Set the audio length.
+     * @param length The length of the audio.
+     */
+    public void setLength(Duration length) {
+        this.length = length;
     }
 }

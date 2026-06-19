@@ -12,7 +12,6 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
@@ -23,7 +22,10 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import ca.richasf.factory.LoanItemFactory;
+import ca.richasf.model.AudioLoanItem;
+import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
+import ca.richasf.model.VideoLoanItem;
 import ca.richasf.textui.Prompt;
 import ca.richasf.textui.Menu;
 import ca.richasf.textui.Validator;
@@ -32,24 +34,43 @@ import ca.richasf.textui.Validator;
  * Core class for managing loans.
  */
 public class LoanItemsTracker {
+    private final Scanner input;
+    private final PrintStream output;
     private final List<LoanItem> loans = new ArrayList<>();
     private final String fileName = "./list.json";
     private final File file = new File(fileName);
     private final Gson gson;
     private final Menu mainMenu;
     private final LoanItemFactory factory = new LoanItemFactory(
-        new LoanItemFactory.Entry("b", "book", () -> {
-            return null;
-        }),
-        new LoanItemFactory.Entry("a", "audio", () -> {
-            return null;
-        }),
-        new LoanItemFactory.Entry("v", "video", () -> {
-            return null;
-        })
-    );
+            new LoanItemFactory.Entry("b", "book", () -> {
+                var loanItem = new BookLoanItem();
+                promptBasicLoanItem(loanItem);
+                return loanItem;
+            }),
+            new LoanItemFactory.Entry("a", "audio", () -> {
+                var loanItem = new AudioLoanItem();
+                promptBasicLoanItem(loanItem);
+                return null;
+            }),
+            new LoanItemFactory.Entry("v", "video", () -> {
+                var loanItem = new VideoLoanItem();
+                promptBasicLoanItem(loanItem);
+                return loanItem;
+            }));
 
-    private LoanItemsTracker() {
+    private final String typeMessage = "Enter the type of the loan item to add (" + String.join(", ",
+            factory.getEntries()
+                    .stream()
+                    .map(entry -> entry.type() + ": " + entry.text()).toList())
+            + "): ";
+
+    private final String typeErrorMessage = "Invalid item type, must be one of "
+            + String.join("/", factory.getTypes());
+
+    private LoanItemsTracker(Scanner input, PrintStream output) {
+        this.input = input;
+        this.output = output;
+
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class,
                         new LocalDateTypeAdapter())
@@ -68,50 +89,17 @@ public class LoanItemsTracker {
         mainMenu.addOption("List All Items", (in, out) -> printLoans(loans, out));
 
         mainMenu.addOption("Add an Item", (in, out) -> {
-
-            var name = Prompt.string()
-                    .message("Enter the loan item's name: ")
-                    .error("The loan's item name must not be blank")
-                    .validator(Validator.notBlank())
+            var type = Prompt.string()
+                    .message(typeMessage)
+                    .error(typeErrorMessage)
+                    .validator(Validator.oneOf(factory.getTypes()))
                     .run(in, out);
 
-            var yearDue = Prompt.integer()
-                    .message("Enter the year of the due date (e.g., 2026): ")
-                    .error("Please enter a valid year")
-                    .run(in, out);
+            var loanItem = factory.getInstance(type);
 
-            var monthDue = Prompt.integer()
-                    .message("Enter the month of the due date (1-12): ")
-                    .error("Please enter a valid month between 1 and 12")
-                    .validator(Validator.boundedInt(1, 12))
-                    .run(in, out);
+            loans.add(loanItem);
 
-            var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
-
-            var dayDue = Prompt.integer()
-                    .message("Enter the day of the due date in the year and month (1-%d): "
-                            .formatted(maxDay))
-                    .error("Please enter a valid month between 1 and %d".formatted(maxDay))
-                    .validator(Validator.boundedInt(1, maxDay))
-                    .run(in, out);
-
-            var publisher = Prompt.string()
-                    .message("Enter the publisher of the loan item: ")
-                    .run(in, out);
-
-            var loanedTo = Prompt.string()
-                    .message("Enter the name to which the item is loaned: ")
-                    .error("The loaned-to person must not be blank")
-                    .validator(Validator.notBlank())
-                    .run(in, out);
-
-            var due = LocalDate.of(yearDue, monthDue, dayDue);
-
-            var loan = new LoanItem(name, publisher, loanedTo, due) {};
-
-            loans.add(loan);
-
-            out.printf("%s has been added to the list.\n", name);
+            out.printf("%s has been added to the list.\n", loanItem.getName());
         });
 
         mainMenu.addOption("Remove an Item", (in, out) -> {
@@ -166,6 +154,46 @@ public class LoanItemsTracker {
         });
     }
 
+    private void promptBasicLoanItem(LoanItem loanItem) {
+        Prompt.string()
+                .message("Enter the loan item's name: ")
+                .error("The loan's item name must not be blank")
+                .validator(Validator.notBlank())
+                .run(input, output, loanItem::setName);
+
+        var yearDue = Prompt.integer()
+                .message("Enter the year of the due date (e.g., 2026): ")
+                .error("Please enter a valid year")
+                .run(input, output);
+
+        var monthDue = Prompt.integer()
+                .message("Enter the month of the due date (1-12): ")
+                .error("Please enter a valid month between 1 and 12")
+                .validator(Validator.boundedInt(1, 12))
+                .run(input, output);
+
+        var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
+
+        var dayDue = Prompt.integer()
+                .message("Enter the day of the due date in the year and month (1-%d): "
+                        .formatted(maxDay))
+                .error("Please enter a valid month between 1 and %d".formatted(maxDay))
+                .validator(Validator.boundedInt(1, maxDay))
+                .run(input, output);
+
+        loanItem.setDue(LocalDate.of(yearDue, monthDue, dayDue));
+
+        Prompt.string()
+                .message("Enter the publisher of the loan item: ")
+                .run(input, output, loanItem::setPublisher);
+
+        Prompt.string()
+                .message("Enter the name to which the item is loaned: ")
+                .error("The loaned-to person must not be blank")
+                .validator(Validator.notBlank())
+                .run(input, output, loanItem::setLoanedTo);
+    }
+
     /**
      * Read loans from a source.
      * 
@@ -212,8 +240,8 @@ public class LoanItemsTracker {
         out.println(builder);
     }
 
-    public void run(Scanner in, PrintStream out) {
-        mainMenu.run(in, out);
+    public void run() {
+        mainMenu.run(input, output);
     }
 
     /**
@@ -223,6 +251,6 @@ public class LoanItemsTracker {
      * @throws Exception If an error occurs.
      */
     public static void main(String[] args) throws Exception {
-        new LoanItemsTracker().run(new Scanner(System.in), System.out);
+        new LoanItemsTracker(new Scanner(System.in), System.out).run();
     }
 }

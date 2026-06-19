@@ -1,5 +1,7 @@
 package ca.richasf.textui;
 
+import java.util.Set;
+
 /**
  * Validates a value that the user gave.
  * 
@@ -41,6 +43,20 @@ public interface Validator<T> {
     static Validator<String> notBlank() {
         return (value) -> {
             if (value.isBlank()) {
+                throw new ValidateException();
+            }
+        };
+    }
+
+    /**
+     * Get a validator that ensure a value is in a set.
+     * @param <T> The type of the value.
+     * @param items The set of valid items.
+     * @return The validator.
+     */
+    static <T> Validator<T> oneOf(Set<T> items) {
+        return (value) -> {
+            if (!items.contains(value)) {
                 throw new ValidateException();
             }
         };

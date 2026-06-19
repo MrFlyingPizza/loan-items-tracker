@@ -1,5 +1,6 @@
 package ca.richasf.factory;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -44,7 +45,7 @@ public final class LoanItemFactory {
     public LoanItem getInstance(String code) throws LoanItemSupplyException {
         var entry = suppliers.get(code);
         if (entry == null) {
-            throw new LoanItemSupplyException(code);
+            throw new LoanItemSupplyException();
         }
         return entry.supplier.get();
     }
@@ -56,5 +57,9 @@ public final class LoanItemFactory {
      */
     public Set<String> getTypes() {
         return suppliers.keySet();
+    }
+
+    public Collection<Entry> getEntries() {
+        return suppliers.values();
     }
 }

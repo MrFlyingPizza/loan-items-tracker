@@ -12,6 +12,7 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
@@ -21,6 +22,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import ca.richasf.factory.LoanItemFactory;
 import ca.richasf.model.LoanItem;
 import ca.richasf.textui.Prompt;
 import ca.richasf.textui.Menu;
@@ -35,6 +37,17 @@ public class LoanItemsTracker {
     private final File file = new File(fileName);
     private final Gson gson;
     private final Menu mainMenu;
+    private final LoanItemFactory factory = new LoanItemFactory(
+        new LoanItemFactory.Entry("b", "book", () -> {
+            return null;
+        }),
+        new LoanItemFactory.Entry("a", "audio", () -> {
+            return null;
+        }),
+        new LoanItemFactory.Entry("v", "video", () -> {
+            return null;
+        })
+    );
 
     private LoanItemsTracker() {
         gson = new GsonBuilder()

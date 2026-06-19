@@ -68,7 +68,7 @@ public class LoanItemsTracker {
                     Prompt.integer()
                             .message("Enter the number of pages: ")
                             .error("The number of pages cannot be negative.")
-                            .validator(Validator.greaterThanOrEqual(0))
+                            .validator(Validator.nonNegative())
                             .run(input, output, loanItem::setPageCount);
 
                     return loanItem;
@@ -80,7 +80,7 @@ public class LoanItemsTracker {
                     var hours = Prompt.integer()
                             .message("Enter the number of hours of the audio: ")
                             .error("The number of hours cannot be negative.")
-                            .validator(Validator.greaterThanOrEqual(0))
+                            .validator(Validator.nonNegative())
                             .run(input, output);
 
                     var duration = Duration.ofHours(hours);
@@ -88,14 +88,14 @@ public class LoanItemsTracker {
                     Prompt.integer()
                             .message("Enter the number of minutes of the audio: ")
                             .error("The number of minutes cannot be negative.")
-                            .validator(Validator.greaterThanOrEqual(0))
+                            .validator(Validator.nonNegative())
                             .run(input, output, duration::plusMinutes);
 
 
                     Prompt.integer()
                             .message("Enter the number of seconds of the audio: ")
                             .error("The number of seconds cannot be negative.")
-                            .validator(Validator.greaterThanOrEqual(0))
+                            .validator(Validator.nonNegative())
                             .run(input, output, duration::plusSeconds);
 
                     loanItem.setLength(duration);

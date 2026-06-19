@@ -50,7 +50,8 @@ public interface Validator<T> {
 
     /**
      * Get a validator that ensure a value is in a set.
-     * @param <T> The type of the value.
+     * 
+     * @param <T>   The type of the value.
      * @param items The set of valid items.
      * @return The validator.
      */
@@ -63,13 +64,13 @@ public interface Validator<T> {
     }
 
     /**
-     * Get a validator that ensure a value is greater than or equal a minimum.
-     * @param min Greater than or equal this value.
+     * Get a validator that ensure a value is not negative.
+     * 
      * @return The validator.
      */
-    static Validator<Integer> greaterThanOrEqual(int min) {
+    static Validator<Integer> nonNegative() {
         return (value) -> {
-            if (value < min) {
+            if (value < 0) {
                 throw new ValidateException();
             }
         };

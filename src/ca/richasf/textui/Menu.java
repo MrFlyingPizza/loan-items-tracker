@@ -10,14 +10,11 @@ import java.util.Scanner;
 /**
  * A menu that allows the user to perform actions using through selections.
  */
-public class SelectionMenu {
-
-    private static record Option(String name, MenuAction action) {
-    }
+public class Menu {
 
     private final String title;
 
-    private final List<Option> options = new ArrayList<>();
+    private final List<MenuOption> options = new ArrayList<>();
 
     private boolean running = true;
 
@@ -26,7 +23,7 @@ public class SelectionMenu {
      * 
      * @param title The title of the menu.
      */
-    public SelectionMenu(String title) {
+    public Menu(String title) {
         this.title = title;
     }
 
@@ -44,7 +41,7 @@ public class SelectionMenu {
      * @param action An action that takes inputs but produce no output.
      */
     public void addOption(String name, MenuAction action) {
-        options.add(new Option(name, action));
+        options.add(new MenuOption(name, action));
     }
 
     /**
@@ -106,7 +103,7 @@ public class SelectionMenu {
         for (var i = 0; i < options.size(); i++) {
             builder.append(i + 1);
             builder.append(": ");
-            builder.append(options.get(i).name);
+            builder.append(options.get(i).text());
             builder.append('\n');
         }
         /* End options */

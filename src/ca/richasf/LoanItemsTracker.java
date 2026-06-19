@@ -23,7 +23,7 @@ import com.google.gson.reflect.TypeToken;
 
 import ca.richasf.model.LoanItem;
 import ca.richasf.textui.Prompt;
-import ca.richasf.textui.SelectionMenu;
+import ca.richasf.textui.Menu;
 import ca.richasf.textui.Validator;
 
 /**
@@ -34,7 +34,7 @@ public class LoanItemsTracker {
     private final String fileName = "./list.json";
     private final File file = new File(fileName);
     private final Gson gson;
-    private final SelectionMenu mainMenu;
+    private final Menu mainMenu;
 
     private LoanItemsTracker() {
         gson = new GsonBuilder()
@@ -50,7 +50,7 @@ public class LoanItemsTracker {
             }
         }
 
-        mainMenu = new SelectionMenu("Loan Items Tracker");
+        mainMenu = new Menu("Loan Items Tracker");
 
         mainMenu.addOption("List All Items", (in, out) -> printLoans(loans, out));
 

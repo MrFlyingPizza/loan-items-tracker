@@ -37,32 +37,32 @@ public class LoanItemsTracker {
     private LoanItemsTracker() {
     }
 
-    private static final List<LoanItem> LOANS = new ArrayList<>();
-    private static final String SAVE_FILE_NAME = "./list.json";
-    private static final File SAVE_FILE = new File(SAVE_FILE_NAME);
-    private static final Gson GSON;
-    private static final SelectionMenu MAIN_MENU;
+    private final List<LoanItem> loans = new ArrayList<>();
+    private final String fileName = "./list.json";
+    private final File file = new File(fileName);
+    private final Gson gson;
+    private final SelectionMenu mainMenu;
 
-    static {
+    {
 
-        GSON = new GsonBuilder()
+        gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class,
                         new LocalDateTypeAdapter())
                 .create();
 
-        if (SAVE_FILE.exists()) {
-            try (var reader = new FileReader(SAVE_FILE)) {
+        if (file.exists()) {
+            try (var reader = new FileReader(file)) {
                 load(reader);
             } catch (Exception e) {
-                System.out.printf("Failed to read save file '%s': %s", SAVE_FILE_NAME, e);
+                System.out.printf("Failed to read save file '%s': %s", fileName, e);
             }
         }
 
-        MAIN_MENU = new SelectionMenu("Loan Items Tracker");
+        mainMenu = new SelectionMenu("Loan Items Tracker");
 
-        MAIN_MENU.addOption("List All Items", (in, out) -> printLoans(LOANS, out));
+        mainMenu.addOption("List All Items", (in, out) -> printLoans(loans, out));
 
-        MAIN_MENU.addOption("Add an Item", (in, out) -> {
+        mainMenu.addOption("Add an Item", (in, out) -> {
 
             var name = Prompt.string()
                     .message("Enter the loan item's name: ")
@@ -104,23 +104,23 @@ public class LoanItemsTracker {
 
             var loan = new LoanItem(name, publisher, loanedTo, due) {};
 
-            LOANS.add(loan);
+            loans.add(loan);
 
             out.printf("%s has been added to the list.\n", name);
         });
 
-        MAIN_MENU.addOption("Remove an Item", (in, out) -> {
-            if (LOANS.size() == 0) {
+        mainMenu.addOption("Remove an Item", (in, out) -> {
+            if (loans.size() == 0) {
                 out.println("There is currently no loan to remove.");
                 return;
             }
 
-            printLoans(LOANS, out);
+            printLoans(loans, out);
             var selection = Prompt.integer()
                     .message("Enter the item number you want to remove (0 to cancel): ")
                     .error("Invalid selection. Enter a number between 0 and %d"
-                            .formatted(LOANS.size()))
-                    .validator(Validator.boundedInt(0, LOANS.size()))
+                            .formatted(loans.size()))
+                    .validator(Validator.boundedInt(0, loans.size()))
                     .run(in, out);
 
             if (selection == 0) {
@@ -129,30 +129,30 @@ public class LoanItemsTracker {
             }
 
             var index = selection - 1;
-            var toRemove = LOANS.get(index);
-            LOANS.remove(index);
+            var toRemove = loans.get(index);
+            loans.remove(index);
 
             out.println("%s has been removed from the list.".formatted(toRemove.getName()));
         });
 
-        MAIN_MENU.addOption("List Overdue Items", (in, out) -> printLoans(LOANS.stream()
+        mainMenu.addOption("List Overdue Items", (in, out) -> printLoans(loans.stream()
                 .filter(loan -> loan.getDue().isBefore(LocalDate.now()))
                 .toList(),
                 out));
 
-        MAIN_MENU.addOption("List Upcoming Items", (in, out) -> printLoans(
-                LOANS.stream()
+        mainMenu.addOption("List Upcoming Items", (in, out) -> printLoans(
+                loans.stream()
                         .filter(loan -> !loan.getDue().isBefore(LocalDate.now()))
                         .toList(),
                 out));
 
-        MAIN_MENU.addOption("Exit", (in, out) -> {
-            out.printf("Saving the loans to %s\n", SAVE_FILE);
+        mainMenu.addOption("Exit", (in, out) -> {
+            out.printf("Saving the loans to %s\n", file);
 
-            try (var writer = new FileWriter(SAVE_FILE)) {
+            try (var writer = new FileWriter(file)) {
                 save(writer);
 
-                MAIN_MENU.stop();
+                mainMenu.stop();
 
                 out.println("Thank you for using our loan items tracker!");
             } catch (IOException e) {
@@ -168,8 +168,8 @@ public class LoanItemsTracker {
      * @throws JsonIOException     If JSON reading error occurs.
      * @throws JsonSyntaxException If JSON is malformed.
      */
-    private static void load(Reader reader) throws JsonIOException, JsonSyntaxException {
-        LOANS.addAll(GSON.fromJson(reader,
+    private void load(Reader reader) throws JsonIOException, JsonSyntaxException {
+        loans.addAll(gson.fromJson(reader,
                 TypeToken.getParameterized(List.class, LoanItem.class)
                         .getType()));
     }
@@ -180,8 +180,8 @@ public class LoanItemsTracker {
      * @param writer The destination.
      * @throws IOException If writing loans fails.
      */
-    private static void save(Writer writer) throws IOException {
-        writer.write(GSON.toJson(LOANS));
+    private void save(Writer writer) throws IOException {
+        writer.write(gson.toJson(loans));
     }
 
     /**
@@ -190,7 +190,7 @@ public class LoanItemsTracker {
      * @param loans The loans to write.
      * @param out   The output to write to.
      */
-    private static void printLoans(List<LoanItem> loans, PrintStream out) {
+    private void printLoans(List<LoanItem> loans, PrintStream out) {
         var builder = new StringBuilder();
         if (loans.isEmpty()) {
             builder.append("No items to show");
@@ -207,6 +207,10 @@ public class LoanItemsTracker {
         out.println(builder);
     }
 
+    public void run(Scanner in, PrintStream out) {
+        mainMenu.run(in, out);
+    }
+
     /**
      * Entrypoint.
      * 
@@ -214,6 +218,6 @@ public class LoanItemsTracker {
      * @throws Exception If an error occurs.
      */
     public static void main(String[] args) throws Exception {
-        MAIN_MENU.run(new Scanner(System.in), System.out);
+        new LoanItemsTracker().run(new Scanner(System.in), System.out);
     }
 }

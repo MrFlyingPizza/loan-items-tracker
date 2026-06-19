@@ -63,6 +63,19 @@ public interface Validator<T> {
     }
 
     /**
+     * Get a validator that ensure a value is greater than or equal a minimum.
+     * @param min Greater than or equal this value.
+     * @return The validator.
+     */
+    static Validator<Integer> greaterThanOrEqual(int min) {
+        return (value) -> {
+            if (value < min) {
+                throw new ValidateException();
+            }
+        };
+    }
+
+    /**
      * Validates the user value.
      * 
      * @param value The value.

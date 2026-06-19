@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
@@ -41,31 +42,6 @@ public class LoanItemsTracker {
     private final File file = new File(fileName);
     private final Gson gson;
     private final Menu mainMenu;
-    private final LoanItemFactory factory = new LoanItemFactory(
-            new LoanItemFactory.Entry("b", "book", () -> {
-                var loanItem = new BookLoanItem();
-                promptBasicLoanItem(loanItem);
-                return loanItem;
-            }),
-            new LoanItemFactory.Entry("a", "audio", () -> {
-                var loanItem = new AudioLoanItem();
-                promptBasicLoanItem(loanItem);
-                return null;
-            }),
-            new LoanItemFactory.Entry("v", "video", () -> {
-                var loanItem = new VideoLoanItem();
-                promptBasicLoanItem(loanItem);
-                return loanItem;
-            }));
-
-    private final String typeMessage = "Enter the type of the loan item to add (" + String.join(", ",
-            factory.getEntries()
-                    .stream()
-                    .map(entry -> entry.type() + ": " + entry.text()).toList())
-            + "): ";
-
-    private final String typeErrorMessage = "Invalid item type, must be one of "
-            + String.join("/", factory.getTypes());
 
     private LoanItemsTracker(Scanner input, PrintStream output) {
         this.input = input;
@@ -83,6 +59,70 @@ public class LoanItemsTracker {
                 System.out.printf("Failed to read save file '%s': %s", fileName, e);
             }
         }
+
+        var factory = new LoanItemFactory(
+                new LoanItemFactory.Entry("b", "book", () -> {
+                    var loanItem = new BookLoanItem();
+                    promptBasicLoanItem(loanItem);
+
+                    Prompt.integer()
+                            .message("Enter the number of pages: ")
+                            .error("The number of pages cannot be negative.")
+                            .validator(Validator.greaterThanOrEqual(0))
+                            .run(input, output, loanItem::setPageCount);
+
+                    return loanItem;
+                }),
+                new LoanItemFactory.Entry("a", "audio", () -> {
+                    var loanItem = new AudioLoanItem();
+                    promptBasicLoanItem(loanItem);
+                    
+                    var hours = Prompt.integer()
+                            .message("Enter the number of hours of the audio: ")
+                            .error("The number of hours cannot be negative.")
+                            .validator(Validator.greaterThanOrEqual(0))
+                            .run(input, output);
+
+                    var duration = Duration.ofHours(hours);
+
+                    Prompt.integer()
+                            .message("Enter the number of minutes of the audio: ")
+                            .error("The number of minutes cannot be negative.")
+                            .validator(Validator.greaterThanOrEqual(0))
+                            .run(input, output, duration::plusMinutes);
+
+
+                    Prompt.integer()
+                            .message("Enter the number of seconds of the audio: ")
+                            .error("The number of seconds cannot be negative.")
+                            .validator(Validator.greaterThanOrEqual(0))
+                            .run(input, output, duration::plusSeconds);
+
+                    loanItem.setLength(duration);
+
+                    return loanItem;
+                }),
+                new LoanItemFactory.Entry("v", "video", () -> {
+                    var loanItem = new VideoLoanItem();
+                    promptBasicLoanItem(loanItem);
+
+                    Prompt.string()
+                    .message("Enter the genre (if unknown type \"unknown\"): ")
+                    .error("The genre must not be blank.")
+                    .validator(Validator.notBlank())
+                    .run(input, output, loanItem::setGenre);
+                    
+                    return loanItem;
+                }));
+
+        final var typeMessage = "Enter the type of the loan item to add (" + String.join(", ",
+                factory.getEntries()
+                        .stream()
+                        .map(entry -> entry.type() + ": " + entry.text()).toList())
+                + "): ";
+
+        final var typeErrorMessage = "Invalid item type, must be one of "
+                + String.join("/", factory.getTypes());
 
         mainMenu = new Menu("Loan Items Tracker");
 

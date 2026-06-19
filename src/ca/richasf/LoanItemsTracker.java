@@ -30,18 +30,13 @@ import ca.richasf.textui.Validator;
  * Core class for managing loans.
  */
 public class LoanItemsTracker {
-
-    private LoanItemsTracker() {
-    }
-
     private final List<LoanItem> loans = new ArrayList<>();
     private final String fileName = "./list.json";
     private final File file = new File(fileName);
     private final Gson gson;
     private final SelectionMenu mainMenu;
 
-    {
-
+    private LoanItemsTracker() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class,
                         new LocalDateTypeAdapter())

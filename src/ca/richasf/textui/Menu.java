@@ -3,8 +3,6 @@ package ca.richasf.textui;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -31,12 +29,12 @@ public class Menu {
      * @param text   Display text of the option.
      * @param action What this option does.
      */
-    record Option(String text, Action action) {
+    public record Option(String text, Action action) {
 
     }
 
     private final String title;
-    private final List<Option> options = new ArrayList<>();
+    private final Option[] options;
     private boolean running = true;
 
     /**
@@ -44,8 +42,9 @@ public class Menu {
      * 
      * @param title The title of the menu.
      */
-    public Menu(String title) {
+    public Menu(String title, Option... options) {
         this.title = title;
+        this.options = options;
     }
 
     /**
@@ -56,23 +55,13 @@ public class Menu {
     }
 
     /**
-     * Add an option for the user to select from.
-     * 
-     * @param name   The name of the option shown to the user.
-     * @param action An action that takes inputs but produce no output.
-     */
-    public void addOption(String name, Action action) {
-        options.add(new Option(name, action));
-    }
-
-    /**
      * Start the display->prompt->dispatch cycle.
      * 
      * @param in  The input to read from.
      * @param out The output to write to.
      */
     public void run(Scanner in, PrintStream out) {
-        if (options.size() <= 0) {
+        if (options.length <= 0) {
             throw new RuntimeException("Cannot run menu when there is no option");
         }
 
@@ -121,10 +110,10 @@ public class Menu {
         /* End current date */
 
         /* Start options */
-        for (var i = 0; i < options.size(); i++) {
+        for (var i = 0; i < options.length; i++) {
             builder.append(i + 1);
             builder.append(": ");
-            builder.append(options.get(i).text());
+            builder.append(options[i].text());
             builder.append('\n');
         }
         /* End options */
@@ -140,16 +129,16 @@ public class Menu {
     Prompt<Integer> prompt() {
         return Prompt.integer()
                 .message("Choose an option by entering 1-%d: "
-                        .formatted(options.size()))
+                        .formatted(options.length))
                 .error("Invalid selection. Enter a number between 1 and %d"
-                        .formatted(options.size()))
-                .validator(Validator.bound(1, options.size()));
+                        .formatted(options.length))
+                .validator(Validator.bound(1, options.length));
     }
 
     /**
      * Dispatch the user's selection.
      */
     void dispatch(Integer selection, Scanner in, PrintStream out) {
-        options.get(selection - 1).action().perform(in, out);
+        options[selection - 1].action().perform(in, out);
     }
 }

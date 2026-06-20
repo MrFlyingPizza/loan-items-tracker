@@ -33,7 +33,6 @@ import ca.richasf.textui.Validator;
  * Core class for managing loans.
  */
 public class LoanItemsTracker {
-
     private final Scanner input;
     private final PrintStream output;
     private final List<LoanItem> loans = new ArrayList<>();

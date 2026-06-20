@@ -28,6 +28,7 @@ public final class BookLoanItem extends LoanItem {
 
     /**
      * Get the page count.
+     * 
      * @return The page count.
      */
     public int getPageCount() {

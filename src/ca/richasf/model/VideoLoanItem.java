@@ -16,7 +16,7 @@ public final class VideoLoanItem extends LoanItem {
      * @param publisher The publisher of the item.
      * @param loanedTo  The name loaned to.
      * @param due       When the loan is due.
-     * @param genre The genre of the video.
+     * @param genre     The genre of the video.
      */
     VideoLoanItem(String name, String publisher, String loanedTo, LocalDate due, String genre) {
         super(name, publisher, loanedTo, due);
@@ -29,6 +29,7 @@ public final class VideoLoanItem extends LoanItem {
 
     /**
      * Get the video's genre.
+     * 
      * @return The genre.
      */
     public String getGenre() {

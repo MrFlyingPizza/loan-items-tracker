@@ -17,16 +17,17 @@ public final class AudioLoanItem extends LoanItem {
      * @param publisher The publisher of the item.
      * @param loanedTo  The name loaned to.
      * @param due       When the loan is due.
-     * @param duration The audio length.
+     * @param duration  The audio length.
      */
     AudioLoanItem(String name, String publisher, String loanedTo, LocalDate due, Duration duration) {
         super(name, publisher, loanedTo, due);
         Objects.requireNonNull(duration);
         this.duration = duration;
     }
-    
+
     /**
      * Get the audio length.
+     * 
      * @return The audio length.
      */
     public Duration getDuration() {

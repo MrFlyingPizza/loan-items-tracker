@@ -117,8 +117,9 @@ public class Prompt<T> {
 
     /**
      * Prompts the user with callback.
-     * @param in  The input to read from.
-     * @param out The output to write to.
+     * 
+     * @param in       The input to read from.
+     * @param out      The output to write to.
      * @param callback The callback to accept the value.
      */
     public void run(Scanner in, PrintStream out, Consumer<T> callback) {

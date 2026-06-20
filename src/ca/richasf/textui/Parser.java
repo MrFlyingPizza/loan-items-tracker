@@ -1,5 +1,7 @@
 package ca.richasf.textui;
 
+import java.text.ParseException;
+
 /**
  * Parses a string into a value.
  * 
@@ -13,5 +15,5 @@ public interface Parser<T> {
      * @return The value.
      * @throws ParseException If parsing failed.
      */
-    T parse(String raw) throws ParseException;
+    T parse(String raw) throws PromptException;
 }

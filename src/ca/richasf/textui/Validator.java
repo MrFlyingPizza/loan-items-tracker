@@ -31,7 +31,7 @@ public interface Validator<T> {
     static Validator<Integer> bound(int min, int max, String errorMessage) {
         return (value) -> {
             if (value < min || value > max) {
-                throw new ValidateException(errorMessage);
+                throw new PromptException(errorMessage);
             }
         };
     }
@@ -45,7 +45,7 @@ public interface Validator<T> {
     static Validator<String> notBlank(String errorMessage) {
         return (value) -> {
             if (value.isBlank()) {
-                throw new ValidateException(errorMessage);
+                throw new PromptException(errorMessage);
             }
         };
     }
@@ -61,7 +61,7 @@ public interface Validator<T> {
     static <T> Validator<T> oneOf(Set<T> items, String errorMessage) {
         return (value) -> {
             if (!items.contains(value)) {
-                throw new ValidateException(errorMessage);
+                throw new PromptException(errorMessage);
             }
         };
     }
@@ -75,7 +75,7 @@ public interface Validator<T> {
     static Validator<Integer> nonNegative(String errorMessage) {
         return (value) -> {
             if (value < 0) {
-                throw new ValidateException(errorMessage);
+                throw new PromptException(errorMessage);
             }
         };
     }
@@ -84,7 +84,7 @@ public interface Validator<T> {
      * Validates the user value.
      * 
      * @param value The value.
-     * @throws ValidateException If validation failed.
+     * @throws PromptException If validation failed.
      */
-    void validate(T value) throws ValidateException;
+    void validate(T value) throws PromptException;
 }

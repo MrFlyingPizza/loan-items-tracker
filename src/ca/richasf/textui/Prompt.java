@@ -21,7 +21,7 @@ public class Prompt<T> {
             try {
                 return Integer.parseInt(raw);
             } catch (NumberFormatException e) {
-                throw new ParseException(parseErrorMessage);
+                throw new PromptException(parseErrorMessage);
             }
         });
     }
@@ -86,7 +86,7 @@ public class Prompt<T> {
                 value = parser.parse(in.nextLine());
                 validator.validate(value);
                 shouldRead = false;
-            } catch (ParseException | ValidateException e) {
+            } catch (PromptException e) {
                 out.println(e.getMessage());
             } catch (Exception e) {
                 out.printf("An unknown error occurred: %s\n", e);

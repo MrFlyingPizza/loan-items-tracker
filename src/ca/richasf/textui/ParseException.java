@@ -7,8 +7,10 @@ public class ParseException extends Exception {
 
     /**
      * Constructs a new exception.
+     * 
+     * @param message A message that tells what failed.
      */
-    public ParseException() {
+    public ParseException(String message) {
     }
 
 }

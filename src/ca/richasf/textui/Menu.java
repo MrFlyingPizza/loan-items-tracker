@@ -127,12 +127,11 @@ public class Menu {
      * @return The prompt to prompt the user with.
      */
     Prompt<Integer> prompt() {
-        return Prompt.integer()
-                .message("Choose an option by entering 1-%d: "
-                        .formatted(options.length))
-                .error("Invalid selection. Enter a number between 1 and %d"
-                        .formatted(options.length))
-                .validator(Validator.bound(1, options.length));
+        var errorMessage = "Invalid selection. Enter a number between 1 and %d"
+                .formatted(options.length);
+        return Prompt.integer("Enter a valid integer.")
+                .message("Choose an option by entering 1-%d: ".formatted(options.length))
+                .validator(Validator.bound(1, options.length, errorMessage));
     }
 
     /**

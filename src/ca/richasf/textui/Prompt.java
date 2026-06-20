@@ -12,27 +12,18 @@ import java.util.function.Consumer;
 public class Prompt<T> {
 
     /**
-     * Parses a string to an integer.
-     * 
-     * @param raw The raw string.
-     * @return The parsed int.
-     * @throws ParseException If the string is not an int.
-     */
-    private static Integer parseInt(String raw) throws ParseException {
-        try {
-            return Integer.parseInt(raw);
-        } catch (NumberFormatException e) {
-            throw new ParseException();
-        }
-    }
-
-    /**
      * Get a prompt that asks for an integer.
      * 
      * @return The prompt.
      */
-    public static Prompt<Integer> integer() {
-        return new Prompt<>(Prompt::parseInt);
+    public static Prompt<Integer> integer(String parseErrorMessage) {
+        return new Prompt<>((raw) -> {
+            try {
+                return Integer.parseInt(raw);
+            } catch (NumberFormatException e) {
+                throw new ParseException(parseErrorMessage);
+            }
+        });
     }
 
     /**
@@ -44,7 +35,7 @@ public class Prompt<T> {
         return new Prompt<>((v) -> v);
     }
 
-    private String message, error;
+    private String message;
     private Parser<T> parser;
     private Validator<T> validator = Validator.pass();
 
@@ -65,17 +56,6 @@ public class Prompt<T> {
      */
     public Prompt<T> message(String message) {
         this.message = message;
-        return this;
-    }
-
-    /**
-     * Fluent API for setting the error message.
-     * 
-     * @param error The error message.
-     * @return This prompt.
-     */
-    public Prompt<T> error(String error) {
-        this.error = error;
         return this;
     }
 
@@ -107,7 +87,7 @@ public class Prompt<T> {
                 validator.validate(value);
                 shouldRead = false;
             } catch (ParseException | ValidateException e) {
-                out.println(error == null ? e : error);
+                out.println(e.getMessage());
             } catch (Exception e) {
                 out.printf("An unknown error occurred: %s\n", e);
             }

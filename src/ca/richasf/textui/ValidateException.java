@@ -7,7 +7,9 @@ public class ValidateException extends Exception {
 
     /**
      * Creates an new exception.
+     * 
+     * @param message A message that tells what failed.
      */
-    public ValidateException() {
+    public ValidateException(String message) {
     }
 }

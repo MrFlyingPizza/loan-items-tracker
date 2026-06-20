@@ -11,5 +11,6 @@ public class PromptException extends Exception {
      * @param message A message that tells the user what failed.
      */
     public PromptException(String message) {
+        super(message);
     }
 }

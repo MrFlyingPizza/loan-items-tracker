@@ -26,7 +26,7 @@ import ca.richasf.model.LoanItem;
 import ca.richasf.model.LoanItemFactory;
 import ca.richasf.textui.Prompt;
 import ca.richasf.textui.Menu;
-import ca.richasf.textui.Validator;
+import static ca.richasf.textui.Validator.*;
 
 /**
  * Core class for managing loans.
@@ -75,7 +75,7 @@ public class LoanItemsTracker {
 
         var name = Prompt.string()
                 .message("Enter the loan item's name: ")
-                .validator(Validator.notBlank("The name must not be blank."))
+                .validator(notBlank("The name must not be blank."))
                 .run(input, output);
 
         var yearDue = Prompt.integer("Enter a valid integer.")
@@ -84,7 +84,7 @@ public class LoanItemsTracker {
 
         var monthDue = Prompt.integer("Enter a valid integer.")
                 .message("Enter the month of the due date (1-12): ")
-                .validator(Validator.bound(1, 12,
+                .validator(bound(1, 12,
                         "Please enter a valid month between 1 and 12."))
                 .run(input, output);
 
@@ -93,7 +93,7 @@ public class LoanItemsTracker {
         var dayDue = Prompt.integer("Enter a valid integer.")
                 .message("Enter the day of the due date in the year and month (1-%d): "
                         .formatted(maxDay))
-                .validator(Validator.bound(1, maxDay,
+                .validator(bound(1, maxDay,
                         "Please enter a valid month between 1 and %d".formatted(maxDay)))
                 .run(input, output);
 
@@ -105,43 +105,48 @@ public class LoanItemsTracker {
 
         var loanedTo = Prompt.string()
                 .message("Enter the name to which the item is loaned: ")
-                .validator(Validator.notBlank("The loaned-to name must not be blank."))
+                .validator(notBlank("The loaned-to name must not be blank."))
                 .run(input, output);
 
+        var typeMessage = "Enter the type of loan item to add (b: book, a: audio, v: video): ";
         var type = Prompt.string()
-                .message("Enter the type of loan item to add (b: book, a: audio, v: video): ")
-                .validator(Validator.oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
+                .message(typeMessage)
+                .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
                 .run(in, out);
 
         var loan = new LoanItemFactory.Loan(loanedTo, due);
 
         var loanItem = switch (type) {
             case "b" -> {
+                var pageCountErrorMessage = "The number of pages cannot be negative.";
                 var pageCount = Prompt.integer("Enter a valid integer.")
                         .message("Enter the number of pages: ")
-                        .validator(Validator.nonNegative("The number of pages cannot be negative."))
+                        .validator(nonNegative(pageCountErrorMessage))
                         .run(input, output);
                 var book = new LoanItemFactory.Book(name, publisher, pageCount);
                 yield factory.getInstance(book, loan);
             }
             case "a" -> {
+                var hoursErrorMessage = "The number of hours cannot be negative.";
                 var hours = Prompt.integer("Enter a valid integer.")
                         .message("Enter the number of hours of the audio: ")
-                        .validator(Validator.nonNegative("The number of hours cannot be negative."))
+                        .validator(nonNegative(hoursErrorMessage))
                         .run(input, output);
 
                 var duration = Duration.ofHours(hours);
 
+                var minutesErrorMessage = "The number of minutes cannot be negative.";
                 var minutes = Prompt.integer("Enter a valid integer.")
                         .message("Enter the number of minutes of the audio: ")
-                        .validator(Validator.nonNegative("The number of minutes cannot be negative."))
+                        .validator(nonNegative(minutesErrorMessage))
                         .run(input, output);
 
                 duration.plusMinutes(minutes);
 
+                var secondsErrorMessage = "The number of seconds cannot be negative.";
                 var seconds = Prompt.integer("Enter a valid integer.")
                         .message("Enter the number of seconds of the audio: ")
-                        .validator(Validator.nonNegative("The number of seconds cannot be negative."))
+                        .validator(nonNegative(secondsErrorMessage))
                         .run(input, output);
 
                 duration.plusSeconds(seconds);
@@ -152,7 +157,7 @@ public class LoanItemsTracker {
             case "v" -> {
                 var genre = Prompt.string()
                         .message("Enter the genre (if unknown type \"unknown\"): ")
-                        .validator(Validator.notBlank("The genre must not be blank."))
+                        .validator(notBlank("The genre must not be blank."))
                         .run(input, output);
 
                 var video = new LoanItemFactory.Video(name, publisher, genre);
@@ -173,11 +178,11 @@ public class LoanItemsTracker {
         }
 
         printLoans(loans, out);
+        var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
+                .formatted(loans.size());
         var selection = Prompt.integer("Enter a valid integer.")
                 .message("Enter the item number you want to remove (0 to cancel): ")
-                .validator(Validator.bound(0, loans.size(),
-                        "Invalid selection. Enter a number between 0 and %d"
-                                .formatted(loans.size())))
+                .validator(bound(0, loans.size(), selectionErrorMessage))
                 .run(in, out);
 
         if (selection == 0) {

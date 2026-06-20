@@ -11,9 +11,32 @@ import java.util.Scanner;
  * A menu that allows the user to perform actions using through selections.
  */
 public class Menu {
+    /**
+     * What a menu does.
+     */
+    @FunctionalInterface
+    public interface Action {
+        /**
+         * Performs this action.
+         * 
+         * @param in  The input to read from.
+         * @param out The output to write to.
+         */
+        void perform(Scanner in, PrintStream out);
+    }
+
+    /**
+     * An option on the selection menu.
+     * 
+     * @param text   Display text of the option.
+     * @param action What this option does.
+     */
+    record Option(String text, Action action) {
+
+    }
 
     private final String title;
-    private final List<MenuOption> options = new ArrayList<>();
+    private final List<Option> options = new ArrayList<>();
     private boolean running = true;
 
     /**
@@ -38,8 +61,8 @@ public class Menu {
      * @param name   The name of the option shown to the user.
      * @param action An action that takes inputs but produce no output.
      */
-    public void addOption(String name, MenuAction action) {
-        options.add(new MenuOption(name, action));
+    public void addOption(String name, Action action) {
+        options.add(new Option(name, action));
     }
 
     /**

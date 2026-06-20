@@ -59,19 +59,20 @@ public class LoanItemsTracker {
         }
 
         mainMenu = new Menu("Loan Items Tracker",
-                new Menu.Option("List All Items", this::handleListAllItems),
-                new Menu.Option("Add an Item", this::handleAddItem),
-                new Menu.Option("Remove an Item", this::handleRemoveItem),
-                new Menu.Option("List Overdue Items", this::handleListOverdueItems),
-                new Menu.Option("List Upcoming Items", this::handleListUpcomingItems),
+                new Menu.Option("List All Items", this::handleListAll),
+                new Menu.Option("Add an Item", this::handleAdd),
+                new Menu.Option("Remove an Item", this::handleRemove),
+                new Menu.Option("List Overdue Items", this::handleListOverdue),
+                new Menu.Option("List Upcoming Items", this::handleListUpcoming),
+                new Menu.Option("List All Items of the Same Type", this::handleListSameType),
                 new Menu.Option("Exit", this::handleExit));
     }
 
-    private void handleListAllItems(Scanner in, PrintStream out) {
+    private void handleListAll(Scanner in, PrintStream out) {
         printLoans(loans, out);
     }
 
-    private void handleAddItem(Scanner in, PrintStream out) {
+    private void handleAdd(Scanner in, PrintStream out) {
 
         var name = Prompt.string()
                 .message("Enter the loan item's name: ")
@@ -171,7 +172,7 @@ public class LoanItemsTracker {
         out.printf("%s has been added to the list.\n", loanItem.getName());
     }
 
-    private void handleRemoveItem(Scanner in, PrintStream out) {
+    private void handleRemove(Scanner in, PrintStream out) {
         if (loans.size() == 0) {
             out.println("There is currently no loan to remove.");
             return;
@@ -197,14 +198,14 @@ public class LoanItemsTracker {
         out.println("%s has been removed from the list.".formatted(toRemove.getName()));
     }
 
-    private void handleListOverdueItems(Scanner in, PrintStream out) {
+    private void handleListOverdue(Scanner in, PrintStream out) {
         printLoans(loans.stream()
                 .filter(loan -> loan.getDue().isBefore(LocalDate.now()))
                 .toList(),
                 out);
     }
 
-    private void handleListUpcomingItems(Scanner in, PrintStream out) {
+    private void handleListUpcoming(Scanner in, PrintStream out) {
         printLoans(
                 loans.stream()
                         .filter(loan -> !loan.getDue().isBefore(LocalDate.now()))
@@ -223,6 +224,14 @@ public class LoanItemsTracker {
         } catch (IOException e) {
             out.printf("Failed to save the loans: %s", e);
         }
+    }
+
+    private void handleListSameType(Scanner in, PrintStream out) {
+        var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
+        var type = Prompt.string()
+                .message(typeMessage)
+                .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
+                .run(in, out);
     }
 
     /**

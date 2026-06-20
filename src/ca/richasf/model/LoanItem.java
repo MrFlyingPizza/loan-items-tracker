@@ -9,10 +9,35 @@ import java.util.Objects;
  */
 public class LoanItem implements Comparable<LoanItem> {
 
-    private String name, publisher, loanedTo;
-    private LocalDate due;
+    private final String name, publisher, loanedTo;
+    private final LocalDate due;
 
-    public LoanItem() {
+    /**
+     * Constructs a new loan item.
+     * 
+     * @param name      The name of the item.
+     * @param publisher The publisher of the item.
+     * @param loanedTo  The name loaned to.
+     * @param due       When the loan is due.
+     */
+    LoanItem(String name, String publisher, String loanedTo, LocalDate due) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(publisher);
+        Objects.requireNonNull(loanedTo);
+        Objects.requireNonNull(due);
+
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("name must not be blank.");
+        }
+
+        if (loanedTo.isBlank()) {
+            throw new IllegalArgumentException("loanedTo must not be blank.");
+        }
+
+        this.name = name;
+        this.publisher = publisher;
+        this.loanedTo = loanedTo;
+        this.due = due;
     }
 
     /**
@@ -25,36 +50,12 @@ public class LoanItem implements Comparable<LoanItem> {
     }
 
     /**
-     * Set the name of the loaned item.
-     * 
-     * @param name The new name of the loaned item.
-     */
-    public void setName(String name) {
-        Objects.requireNonNull(name);
-
-        if (name.isBlank()) {
-            throw new IllegalArgumentException("Name must not be blank.");
-        }
-        this.name = name;
-    }
-
-    /**
      * Retrieves the publisher of the loaned item.
      * 
      * @return The publisher.
      */
     public String getPublisher() {
         return publisher;
-    }
-
-    /**
-     * Set the publisher of the loaned item.
-     * 
-     * @param publisher The publisher.
-     */
-    public void setPublisher(String publisher) {
-        Objects.requireNonNull(publisher);
-        this.publisher = publisher;
     }
 
     /**
@@ -67,36 +68,12 @@ public class LoanItem implements Comparable<LoanItem> {
     }
 
     /**
-     * Set the loaned-to name.
-     * 
-     * @param loanedTo The new loaned-to name.
-     */
-    public void setLoanedTo(String loanedTo) {
-        Objects.requireNonNull(loanedTo);
-
-        if (loanedTo.isBlank()) {
-            throw new IllegalArgumentException("Loaned to must not be blank.");
-        }
-        this.loanedTo = loanedTo;
-    }
-
-    /**
      * Get when the loan is due.
      * 
      * @return The due date.
      */
     public LocalDate getDue() {
         return due;
-    }
-
-    /**
-     * Set the due date.
-     * 
-     * @param due The new due date.
-     */
-    public void setDue(LocalDate due) {
-        Objects.requireNonNull(due);
-        this.due = due;
     }
 
     /**

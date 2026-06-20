@@ -14,6 +14,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.gson.Gson;
@@ -22,11 +23,8 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import ca.richasf.factory.LoanItemFactory;
-import ca.richasf.model.AudioLoanItem;
-import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
-import ca.richasf.model.VideoLoanItem;
+import ca.richasf.model.LoanItemFactory;
 import ca.richasf.textui.Prompt;
 import ca.richasf.textui.Menu;
 import ca.richasf.textui.Validator;
@@ -35,6 +33,7 @@ import ca.richasf.textui.Validator;
  * Core class for managing loans.
  */
 public class LoanItemsTracker {
+
     private final Scanner input;
     private final PrintStream output;
     private final List<LoanItem> loans = new ArrayList<>();
@@ -60,23 +59,71 @@ public class LoanItemsTracker {
             }
         }
 
-        var factory = new LoanItemFactory(
-                new LoanItemFactory.Entry("b", "book", () -> {
-                    var loanItem = new BookLoanItem();
-                    promptBasicLoanItem(loanItem);
+        var factory = new LoanItemFactory();
 
-                    Prompt.integer()
+        mainMenu = new Menu("Loan Items Tracker");
+
+        mainMenu.addOption("List All Items", (in, out) -> printLoans(loans, out));
+
+        mainMenu.addOption("Add an Item", (in, out) -> {
+
+            var name = Prompt.string()
+                    .message("Enter the loan item's name: ")
+                    .error("The loan's item name must not be blank")
+                    .validator(Validator.notBlank())
+                    .run(input, output);
+
+            var yearDue = Prompt.integer()
+                    .message("Enter the year of the due date (e.g., 2026): ")
+                    .error("Please enter a valid year")
+                    .run(input, output);
+
+            var monthDue = Prompt.integer()
+                    .message("Enter the month of the due date (1-12): ")
+                    .error("Please enter a valid month between 1 and 12")
+                    .validator(Validator.bound(1, 12))
+                    .run(input, output);
+
+            var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
+
+            var dayDue = Prompt.integer()
+                    .message("Enter the day of the due date in the year and month (1-%d): "
+                            .formatted(maxDay))
+                    .error("Please enter a valid month between 1 and %d".formatted(maxDay))
+                    .validator(Validator.bound(1, maxDay))
+                    .run(input, output);
+
+            var due = LocalDate.of(yearDue, monthDue, dayDue);
+
+            var publisher = Prompt.string()
+                    .message("Enter the publisher of the loan item: ")
+                    .run(input, output);
+
+            var loanedTo = Prompt.string()
+                    .message("Enter the name to which the item is loaned: ")
+                    .error("The loaned-to person must not be blank")
+                    .validator(Validator.notBlank())
+                    .run(input, output);
+
+            var type = Prompt.string()
+                    .message("Enter the type of loan item to add (b: book, a: audio, v: video): ")
+                    .error("Type must be one of b/a/v.")
+                    .validator(Validator.oneOf(Set.of("")))
+                    .run(in, out);
+
+            var loan = new LoanItemFactory.Loan(loanedTo, due);
+
+            var loanItem = switch (type) {
+                case "b" -> {
+                    var pageCount = Prompt.integer()
                             .message("Enter the number of pages: ")
                             .error("The number of pages cannot be negative.")
                             .validator(Validator.nonNegative())
-                            .run(input, output, loanItem::setPageCount);
-
-                    return loanItem;
-                }),
-                new LoanItemFactory.Entry("a", "audio", () -> {
-                    var loanItem = new AudioLoanItem();
-                    promptBasicLoanItem(loanItem);
-                    
+                            .run(input, output);
+                    var book = new LoanItemFactory.Book(name, publisher, pageCount);
+                    yield factory.getInstance(book, loan);
+                }
+                case "a" -> {
                     var hours = Prompt.integer()
                             .message("Enter the number of hours of the audio: ")
                             .error("The number of hours cannot be negative.")
@@ -85,57 +132,38 @@ public class LoanItemsTracker {
 
                     var duration = Duration.ofHours(hours);
 
-                    Prompt.integer()
+                    var minutes = Prompt.integer()
                             .message("Enter the number of minutes of the audio: ")
                             .error("The number of minutes cannot be negative.")
                             .validator(Validator.nonNegative())
-                            .run(input, output, duration::plusMinutes);
+                            .run(input, output);
 
+                    duration.plusMinutes(minutes);
 
-                    Prompt.integer()
+                    var seconds = Prompt.integer()
                             .message("Enter the number of seconds of the audio: ")
                             .error("The number of seconds cannot be negative.")
                             .validator(Validator.nonNegative())
-                            .run(input, output, duration::plusSeconds);
+                            .run(input, output);
 
-                    loanItem.setLength(duration);
+                    duration.plusSeconds(seconds);
 
-                    return loanItem;
-                }),
-                new LoanItemFactory.Entry("v", "video", () -> {
-                    var loanItem = new VideoLoanItem();
-                    promptBasicLoanItem(loanItem);
+                    var audio = new LoanItemFactory.Audio(name, publisher, duration);
+                    yield factory.getInstance(audio, loan);
+                }
+                case "v" -> {
 
-                    Prompt.string()
-                    .message("Enter the genre (if unknown type \"unknown\"): ")
-                    .error("The genre must not be blank.")
-                    .validator(Validator.notBlank())
-                    .run(input, output, loanItem::setGenre);
-                    
-                    return loanItem;
-                }));
+                    var genre = Prompt.string()
+                            .message("Enter the genre (if unknown type \"unknown\"): ")
+                            .error("The genre must not be blank.")
+                            .validator(Validator.notBlank())
+                            .run(input, output);
 
-        final var typeMessage = "Enter the type of the loan item to add (" + String.join(", ",
-                factory.getEntries()
-                        .stream()
-                        .map(entry -> entry.type() + ": " + entry.text()).toList())
-                + "): ";
-
-        final var typeErrorMessage = "Invalid item type, must be one of "
-                + String.join("/", factory.getTypes());
-
-        mainMenu = new Menu("Loan Items Tracker");
-
-        mainMenu.addOption("List All Items", (in, out) -> printLoans(loans, out));
-
-        mainMenu.addOption("Add an Item", (in, out) -> {
-            var type = Prompt.string()
-                    .message(typeMessage)
-                    .error(typeErrorMessage)
-                    .validator(Validator.oneOf(factory.getTypes()))
-                    .run(in, out);
-
-            var loanItem = factory.getInstance(type);
+                    var video = new LoanItemFactory.Video(name, publisher, genre);
+                    yield factory.getInstance(video, loan);
+                }
+                default -> throw new RuntimeException("Unexpected type.");
+            };
 
             loans.add(loanItem);
 
@@ -192,46 +220,6 @@ public class LoanItemsTracker {
                 out.printf("Failed to save the loans: %s", e);
             }
         });
-    }
-
-    private void promptBasicLoanItem(LoanItem loanItem) {
-        Prompt.string()
-                .message("Enter the loan item's name: ")
-                .error("The loan's item name must not be blank")
-                .validator(Validator.notBlank())
-                .run(input, output, loanItem::setName);
-
-        var yearDue = Prompt.integer()
-                .message("Enter the year of the due date (e.g., 2026): ")
-                .error("Please enter a valid year")
-                .run(input, output);
-
-        var monthDue = Prompt.integer()
-                .message("Enter the month of the due date (1-12): ")
-                .error("Please enter a valid month between 1 and 12")
-                .validator(Validator.bound(1, 12))
-                .run(input, output);
-
-        var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
-
-        var dayDue = Prompt.integer()
-                .message("Enter the day of the due date in the year and month (1-%d): "
-                        .formatted(maxDay))
-                .error("Please enter a valid month between 1 and %d".formatted(maxDay))
-                .validator(Validator.bound(1, maxDay))
-                .run(input, output);
-
-        loanItem.setDue(LocalDate.of(yearDue, monthDue, dayDue));
-
-        Prompt.string()
-                .message("Enter the publisher of the loan item: ")
-                .run(input, output, loanItem::setPublisher);
-
-        Prompt.string()
-                .message("Enter the name to which the item is loaned: ")
-                .error("The loaned-to person must not be blank")
-                .validator(Validator.notBlank())
-                .run(input, output, loanItem::setLoanedTo);
     }
 
     /**

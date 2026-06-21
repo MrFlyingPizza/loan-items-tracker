@@ -1,7 +1,6 @@
 package ca.richasf.model;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -76,36 +75,13 @@ public class LoanItem implements Comparable<LoanItem> {
         return due;
     }
 
-    /**
-     * Convert to string representation.
-     */
     @Override
     public String toString() {
-        var builder = new StringBuilder();
-        builder.append(name)
-                .append("\n- published by ").append(publisher)
-                .append("\n- loaned to ").append(loanedTo)
-                .append("\n- due on ").append(due).append(' ');
-
-        builder.append('(');
-
-        var daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), due);
-        if (daysUntilDue > 0) {
-            builder.append("due in ")
-                    .append(daysUntilDue)
-                    .append(" days(s)");
-        } else if (daysUntilDue < 0) {
-            builder.append("overdue by ")
-                    .append(-daysUntilDue)
-                    .append(" days(s)");
-        } else {
-            builder.append("due today");
-        }
-
-        builder.append(')');
-        builder.append('\n');
-
-        return builder.toString();
+        return "LoanItem [name="
+                + name
+                + ", publisher=" + publisher +
+                ", loanedTo=" + loanedTo +
+                ", due=" + due + "]";
     }
 
     @Override

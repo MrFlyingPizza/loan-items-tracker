@@ -11,10 +11,12 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import com.google.gson.Gson;
@@ -40,6 +42,62 @@ import static ca.richasf.textui.Validator.*;
  * Core class for managing loans.
  */
 public class LoanItemsTracker {
+    private static final List<BiConsumer<LoanItem, StringBuilder>> FORMATTERS = List.of(
+            (item, builder) -> builder.append("published by ").append(item.getPublisher()),
+            (item, builder) -> builder.append("loaned to ").append(item.getLoanedTo()),
+            (item, builder) -> {
+                builder.append("due on ").append(item.getDue());
+                var daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), item.getDue());
+                if (daysUntilDue > 0) {
+                    builder.append("due in ")
+                            .append(daysUntilDue)
+                            .append(" days(s)");
+                } else if (daysUntilDue < 0) {
+                    builder.append("overdue by ")
+                            .append(-daysUntilDue)
+                            .append(" days(s)");
+                } else {
+                    builder.append("due today");
+                }
+            },
+            (item, builder) -> {
+                switch (item) {
+                    case BookLoanItem book -> builder.append(book.getPageCount()).append(" pages");
+                    case AudioLoanItem audio -> {
+                        var duration = audio.getDuration();
+                        builder.append(duration.toHours()).append(" hour(s) ")
+                                .append(duration.toMinutesPart()).append(" minute(s) ")
+                                .append(duration.toSecondsPart()).append(" second(s)")
+                                .append(" long");
+                    }
+                    case VideoLoanItem video -> builder.append(video.getGenre()).append(" genre");
+                    default -> {
+                    }
+                }
+            });
+
+    private static CharSequence formatLoanItem(LoanItem loanItem) {
+        var builder = new StringBuilder();
+
+        var type = switch (loanItem) {
+            case BookLoanItem item -> "Book";
+            case AudioLoanItem item -> "Audio";
+            case VideoLoanItem item -> "Video";
+            default -> "Unknown";
+        };
+
+        builder.append("Loan Item Type: ").append(type).append('\n')
+                .append(loanItem.getName()).append('\n');
+
+        for (var formatter : FORMATTERS) {
+            builder.append("- ");
+            formatter.accept(loanItem, builder);
+            builder.append('\n');
+        }
+
+        return builder.toString();
+    }
+
     private static final Type type = TypeToken.getParameterized(
             List.class,
             LoanItem.class)
@@ -306,15 +364,9 @@ public class LoanItemsTracker {
                 private int counter = 1;
 
                 @Override
-                public void accept(LoanItem loan) {
+                public void accept(LoanItem item) {
                     builder.append('#').append(counter++).append('\n')
-                            .append("Loan Item Type: ").append(switch (loan) {
-                                case BookLoanItem item -> "Book";
-                                case AudioLoanItem item -> "Audio";
-                                case VideoLoanItem item -> "Video";
-                                default -> "Unknown";
-                            }).append('\n')
-                            .append(loan).append('\n');
+                            .append(formatLoanItem(item)).append('\n');
                 }
             });
         }

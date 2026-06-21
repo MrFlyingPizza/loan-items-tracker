@@ -22,6 +22,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import ca.richasf.gson.extras.RuntimeTypeAdapterFactory;
 import ca.richasf.model.AudioLoanItem;
 import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
@@ -47,9 +48,14 @@ public class LoanItemsTracker {
         this.input = input;
         this.output = output;
 
+        var loanItemAdapterFactory = RuntimeTypeAdapterFactory.of(LoanItem.class, "type");
+        loanItemAdapterFactory.registerSubtype(BookLoanItem.class, "Book");
+        loanItemAdapterFactory.registerSubtype(AudioLoanItem.class, "Audio");
+        loanItemAdapterFactory.registerSubtype(VideoLoanItem.class, "Video");
+
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class,
-                        new LocalDateTypeAdapter())
+                .registerTypeAdapterFactory(loanItemAdapterFactory)
+                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
                 .create();
 
         var path = Path.of(filePath);
@@ -281,7 +287,8 @@ public class LoanItemsTracker {
                                 case AudioLoanItem item -> "Audio";
                                 case VideoLoanItem item -> "Video";
                                 default -> "Unknown";
-                            }).append(loan).append('\n');
+                            }).append('\n')
+                            .append(loan).append('\n');
                 }
             });
         }

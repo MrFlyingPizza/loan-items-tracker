@@ -4,29 +4,44 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 /**
- * A factory that prompts the user to create loan items.
+ * A factory that creates loan items.
  */
 public final class LoanItemFactory {
     /**
      * Data necessary to construct a {@link LoanItem}.
+     * 
+     * @param to  Who the loan is for.
+     * @param due When the loan is due.
      */
     public record Loan(String to, LocalDate due) {
     }
 
     /**
      * Data necessary to construct a {@link BookLoanItem}.
+     * 
+     * @param name      The name of the book.
+     * @param publisher The publisher of the book.
+     * @param pageCount The number of pages of the book.
      */
     public record Book(String name, String publisher, int pageCount) {
     }
 
     /**
      * Data necessary to construct a {@link AudioLoanItem}.
+     * 
+     * @param name      The name of the audio.
+     * @param publisher The publisher of the audio.
+     * @param duration  How long the audio is.
      */
     public record Audio(String name, String publisher, Duration duration) {
     }
 
     /**
      * Data necessary to construct a {@link VideoLoanItem}.
+     * 
+     * @param name      The name of the video.
+     * @param publisher The publisher of the video.
+     * @param genre     The genre of the video.
      */
     public record Video(String name, String publisher, String genre) {
     }
@@ -52,8 +67,8 @@ public final class LoanItemFactory {
     /**
      * Creates a new audio loan item.
      * 
-     * @param book The audio information.
-     * @param loan The loan information.
+     * @param audio The audio information.
+     * @param loan  The loan information.
      * @return The new audio loan item.
      */
     public AudioLoanItem getInstance(Audio audio, Loan loan) {
@@ -63,8 +78,8 @@ public final class LoanItemFactory {
     /**
      * Creates a new video loan item.
      * 
-     * @param book The video information.
-     * @param loan The loan information.
+     * @param video The video information.
+     * @param loan  The loan information.
      * @return The new video loan item.
      */
     public VideoLoanItem getInstance(Video video, Loan loan) {

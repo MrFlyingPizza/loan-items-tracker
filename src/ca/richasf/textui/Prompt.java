@@ -14,6 +14,7 @@ public class Prompt<T> {
     /**
      * Get a prompt that asks for an integer.
      * 
+     * @param parseErrorMessage The message for when an integer can't be parsed.
      * @return The prompt.
      */
     public static Prompt<Integer> integer(String parseErrorMessage) {

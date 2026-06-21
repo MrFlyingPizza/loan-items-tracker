@@ -367,6 +367,9 @@ public class LoanItemsTracker {
         output.print(builder);
     }
 
+    /**
+     * Starts the loan items tracker.
+     */
     public void run() {
         mainMenu.run(input, output);
     }

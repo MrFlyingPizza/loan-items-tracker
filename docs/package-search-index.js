@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"loans"},{"l":"menus"},{"l":"prompts"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"ca.richasf"},{"l":"ca.richasf.gson.extras"},{"l":"ca.richasf.model"},{"l":"ca.richasf.textui"}];updateSearchResults();

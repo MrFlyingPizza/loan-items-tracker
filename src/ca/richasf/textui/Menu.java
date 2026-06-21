@@ -47,6 +47,12 @@ public class Menu {
         this.title = title;
     }
 
+    /**
+     * Add an option to the menu.
+     * 
+     * @param text   What to display for the option.
+     * @param action What to do if the user selects this option.
+     */
     public void addOption(String text, Menu.Action action) {
         options.add(new Option(text, action));
     }

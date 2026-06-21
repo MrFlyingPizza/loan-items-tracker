@@ -75,18 +75,26 @@ public class LoanItem implements Comparable<LoanItem> {
         return due;
     }
 
+    /**
+     * Get string representation of this loan item.
+     */
     @Override
     public String toString() {
-        return "LoanItem [name="
-                + name
-                + ", publisher=" + publisher +
-                ", loanedTo=" + loanedTo +
-                ", due=" + due + "]";
+        return new StringBuilder()
+                .append("LoanItem [")
+                .append("name=").append(name).append(", ")
+                .append("publisher=").append(publisher).append(", ")
+                .append("loanedTo=").append(loanedTo).append(", ")
+                .append("due=").append(due)
+                .append(']')
+                .toString();
     }
 
+    /**
+     * Compare with another date. Earliest to latest.
+     */
     @Override
     public int compareTo(LoanItem other) {
         return getDue().compareTo(other.getDue());
     }
-
 }

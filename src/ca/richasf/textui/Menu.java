@@ -3,6 +3,8 @@ package ca.richasf.textui;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -30,11 +32,10 @@ public class Menu {
      * @param action What this option does.
      */
     public record Option(String text, Action action) {
-
     }
 
     private final String title;
-    private final Option[] options;
+    private final List<Option> options = new ArrayList<>();
     private boolean running = true;
 
     /**
@@ -42,9 +43,12 @@ public class Menu {
      * 
      * @param title The title of the menu.
      */
-    public Menu(String title, Option... options) {
+    public Menu(String title) {
         this.title = title;
-        this.options = options;
+    }
+
+    public void addOption(String text, Menu.Action action) {
+        options.add(new Option(text, action));
     }
 
     /**
@@ -61,7 +65,7 @@ public class Menu {
      * @param out The output to write to.
      */
     public void run(Scanner in, PrintStream out) {
-        if (options.length <= 0) {
+        if (options.size() <= 0) {
             throw new RuntimeException("Cannot run menu when there is no option");
         }
 
@@ -110,10 +114,10 @@ public class Menu {
         /* End current date */
 
         /* Start options */
-        for (var i = 0; i < options.length; i++) {
+        for (var i = 0; i < options.size(); i++) {
             builder.append(i + 1);
             builder.append(": ");
-            builder.append(options[i].text());
+            builder.append(options.get(i).text());
             builder.append('\n');
         }
         /* End options */
@@ -128,16 +132,16 @@ public class Menu {
      */
     Prompt<Integer> prompt() {
         var errorMessage = "Invalid selection. Enter a number between 1 and %d"
-                .formatted(options.length);
+                .formatted(options.size());
         return Prompt.integer("Enter a valid integer.")
-                .message("Choose an option by entering 1-%d: ".formatted(options.length))
-                .validator(Validator.bound(1, options.length, errorMessage));
+                .message("Choose an option by entering 1-%d: ".formatted(options.size()))
+                .validator(Validator.bound(1, options.size(), errorMessage));
     }
 
     /**
      * Dispatch the user's selection.
      */
     void dispatch(Integer selection, Scanner in, PrintStream out) {
-        options[selection - 1].action().perform(in, out);
+        options.get(selection - 1).action().perform(in, out);
     }
 }

@@ -349,7 +349,7 @@ public class LoanItemsTracker {
                 }
             });
         }
-        output.println(builder);
+        output.print(builder);
     }
 
     public void run() {

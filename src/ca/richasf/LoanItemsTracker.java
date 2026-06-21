@@ -20,7 +20,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import ca.richasf.gson.extras.RuntimeTypeAdapterFactory;
 import ca.richasf.model.AudioLoanItem;
@@ -55,7 +58,30 @@ public class LoanItemsTracker {
 
         gson = new GsonBuilder()
                 .registerTypeAdapterFactory(loanItemAdapterFactory)
-                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+                .registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>() {
+                    @Override
+                    public void write(JsonWriter out, LocalDate value) throws IOException {
+                        out.value(value.toString());
+                    }
+
+                    @Override
+                    public LocalDate read(JsonReader in) throws IOException {
+                        return LocalDate.parse(in.nextString());
+                    }
+                })
+                .registerTypeAdapter(Duration.class, new TypeAdapter<Duration>() {
+
+                    @Override
+                    public void write(JsonWriter out, Duration value) throws IOException {
+                        out.value(value.toMillis());
+                    }
+
+                    @Override
+                    public Duration read(JsonReader in) throws IOException {
+                        return Duration.ofMillis(in.nextLong());
+                    }
+                    
+                })
                 .create();
 
         var path = Path.of(filePath);
@@ -151,7 +177,7 @@ public class LoanItemsTracker {
                         .validator(nonNegative(minutesErrorMessage))
                         .run(input, output);
 
-                duration.plusMinutes(minutes);
+                duration = duration.plusMinutes(minutes);
 
                 var secondsErrorMessage = "The number of seconds cannot be negative.";
                 var seconds = Prompt.integer("Enter a valid integer.")
@@ -159,7 +185,7 @@ public class LoanItemsTracker {
                         .validator(nonNegative(secondsErrorMessage))
                         .run(input, output);
 
-                duration.plusSeconds(seconds);
+                duration = duration.plusSeconds(seconds);
 
                 var audio = new LoanItemFactory.Audio(name, publisher, duration);
                 yield factory.getInstance(audio, loan);

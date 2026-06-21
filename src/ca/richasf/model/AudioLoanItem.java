@@ -41,7 +41,7 @@ public final class AudioLoanItem extends LoanItem {
                 .append(duration.toHours()).append(" hour(s) ")
                 .append(duration.toMinutesPart()).append(" minute(s) ")
                 .append(duration.toSecondsPart()).append(" second(s)")
-                .append("long").append('\n')
+                .append(" long").append('\n')
                 .toString();
     }
 }

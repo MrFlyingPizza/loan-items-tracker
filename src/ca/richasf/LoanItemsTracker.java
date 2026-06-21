@@ -84,7 +84,22 @@ public class LoanItemsTracker {
         } else {
             result.append("due today");
         }
-        result.append(')');
+        result.append(')').append('\n');
+
+        result.append("- ");
+        switch (loanItem) {
+            case BookLoanItem book -> result.append(book.getPageCount()).append(" pages");
+            case AudioLoanItem audio -> {
+                var duration = audio.getDuration();
+                result.append(duration.toHours()).append(" hour(s) ")
+                        .append(duration.toMinutesPart()).append(" minute(s) ")
+                        .append(duration.toSecondsPart()).append(" second(s) ")
+                        .append("long");
+            }
+            case VideoLoanItem video -> result.append(video.getGenre()).append(" genre");
+            default -> {
+            }
+        }
         result.append('\n');
 
         return result.toString();

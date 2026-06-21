@@ -103,6 +103,7 @@ public class LoanItem implements Comparable<LoanItem> {
         }
 
         builder.append(')');
+        builder.append('\n');
 
         return builder.toString();
     }

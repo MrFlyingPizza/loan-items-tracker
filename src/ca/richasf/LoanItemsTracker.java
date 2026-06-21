@@ -216,14 +216,12 @@ public class LoanItemsTracker {
                 .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
                 .run(in, out);
 
-        var c = switch (type) {
+        printLoans(loan -> loan.getClass().equals(switch (type) {
             case "b" -> BookLoanItem.class;
             case "a" -> AudioLoanItem.class;
             case "v" -> VideoLoanItem.class;
             default -> throw new RuntimeException("Unexpected class");
-        };
-
-        printLoans(loan -> loan.getClass().equals(c));
+        }));
     }
 
     private void handleExit(Scanner in, PrintStream out) {
@@ -277,6 +275,12 @@ public class LoanItemsTracker {
 
                 @Override
                 public void accept(LoanItem loan) {
+                    builder.append("Loan Item Type: ").append(switch (loan) {
+                        case BookLoanItem item -> "Book";
+                        case AudioLoanItem item -> "Audio";
+                        case VideoLoanItem item -> "Video";
+                        default -> "Unknown";
+                    });
                     builder.append('#').append(counter++).append('\n').append(loan).append('\n');
                 }
             });

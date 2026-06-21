@@ -275,13 +275,13 @@ public class LoanItemsTracker {
 
                 @Override
                 public void accept(LoanItem loan) {
-                    builder.append("Loan Item Type: ").append(switch (loan) {
-                        case BookLoanItem item -> "Book";
-                        case AudioLoanItem item -> "Audio";
-                        case VideoLoanItem item -> "Video";
-                        default -> "Unknown";
-                    });
-                    builder.append('#').append(counter++).append('\n').append(loan).append('\n');
+                    builder.append('#').append(counter++).append('\n')
+                            .append("Loan Item Type: ").append(switch (loan) {
+                                case BookLoanItem item -> "Book";
+                                case AudioLoanItem item -> "Audio";
+                                case VideoLoanItem item -> "Video";
+                                default -> "Unknown";
+                            }).append(loan).append('\n');
                 }
             });
         }

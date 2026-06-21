@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -39,6 +40,11 @@ import static ca.richasf.textui.Validator.*;
  * Core class for managing loans.
  */
 public class LoanItemsTracker {
+    private static final Type type = TypeToken.getParameterized(
+            List.class,
+            LoanItem.class)
+            .getType();
+
     private final Scanner input;
     private final PrintStream output;
     private final List<LoanItem> loans = new ArrayList<>();
@@ -51,13 +57,11 @@ public class LoanItemsTracker {
         this.input = input;
         this.output = output;
 
-        var loanItemAdapterFactory = RuntimeTypeAdapterFactory.of(LoanItem.class, "type");
-        loanItemAdapterFactory.registerSubtype(BookLoanItem.class, "Book");
-        loanItemAdapterFactory.registerSubtype(AudioLoanItem.class, "Audio");
-        loanItemAdapterFactory.registerSubtype(VideoLoanItem.class, "Video");
-
         gson = new GsonBuilder()
-                .registerTypeAdapterFactory(loanItemAdapterFactory)
+                .registerTypeAdapterFactory(RuntimeTypeAdapterFactory.of(LoanItem.class)
+                        .registerSubtype(BookLoanItem.class, "Book")
+                        .registerSubtype(AudioLoanItem.class, "Audio")
+                        .registerSubtype(VideoLoanItem.class, "Video"))
                 .registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>() {
                     @Override
                     public void write(JsonWriter out, LocalDate value) throws IOException {
@@ -70,7 +74,6 @@ public class LoanItemsTracker {
                     }
                 })
                 .registerTypeAdapter(Duration.class, new TypeAdapter<Duration>() {
-
                     @Override
                     public void write(JsonWriter out, Duration value) throws IOException {
                         out.value(value.toMillis());
@@ -80,7 +83,6 @@ public class LoanItemsTracker {
                     public Duration read(JsonReader in) throws IOException {
                         return Duration.ofMillis(in.nextLong());
                     }
-                    
                 })
                 .create();
 
@@ -277,9 +279,7 @@ public class LoanItemsTracker {
      * @throws JsonSyntaxException If JSON is malformed.
      */
     private void load(Reader reader) throws JsonIOException, JsonSyntaxException {
-        loans.addAll(gson.fromJson(reader,
-                TypeToken.getParameterized(List.class, LoanItem.class)
-                        .getType()));
+        loans.addAll(gson.fromJson(reader, type));
     }
 
     /**
@@ -289,7 +289,7 @@ public class LoanItemsTracker {
      * @throws IOException If writing loans fails.
      */
     private void save(Writer writer) throws IOException {
-        writer.write(gson.toJson(loans));
+        writer.write(gson.toJson(loans, type));
     }
 
     /**

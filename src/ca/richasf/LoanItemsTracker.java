@@ -15,15 +15,18 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
-
+import java.util.function.Predicate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import ca.richasf.model.AudioLoanItem;
+import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
 import ca.richasf.model.LoanItemFactory;
+import ca.richasf.model.VideoLoanItem;
 import ca.richasf.textui.Prompt;
 import ca.richasf.textui.Menu;
 import static ca.richasf.textui.Validator.*;
@@ -69,7 +72,7 @@ public class LoanItemsTracker {
     }
 
     private void handleListAll(Scanner in, PrintStream out) {
-        printLoans(loans, out);
+        printLoans((item) -> true);
     }
 
     private void handleAdd(Scanner in, PrintStream out) {
@@ -178,7 +181,7 @@ public class LoanItemsTracker {
             return;
         }
 
-        printLoans(loans, out);
+        printLoans((item) -> true);
         var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
                 .formatted(loans.size());
         var selection = Prompt.integer("Enter a valid integer.")
@@ -199,18 +202,28 @@ public class LoanItemsTracker {
     }
 
     private void handleListOverdue(Scanner in, PrintStream out) {
-        printLoans(loans.stream()
-                .filter(loan -> loan.getDue().isBefore(LocalDate.now()))
-                .toList(),
-                out);
+        printLoans(loan -> loan.getDue().isBefore(LocalDate.now()));
     }
 
     private void handleListUpcoming(Scanner in, PrintStream out) {
-        printLoans(
-                loans.stream()
-                        .filter(loan -> !loan.getDue().isBefore(LocalDate.now()))
-                        .toList(),
-                out);
+        printLoans(loan -> !loan.getDue().isBefore(LocalDate.now()));
+    }
+
+    private void handleListSameType(Scanner in, PrintStream out) {
+        var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
+        var type = Prompt.string()
+                .message(typeMessage)
+                .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
+                .run(in, out);
+
+        var c = switch (type) {
+            case "b" -> BookLoanItem.class;
+            case "a" -> AudioLoanItem.class;
+            case "v" -> VideoLoanItem.class;
+            default -> throw new RuntimeException("Unexpected class");
+        };
+
+        printLoans(loan -> loan.getClass().equals(c));
     }
 
     private void handleExit(Scanner in, PrintStream out) {
@@ -224,14 +237,6 @@ public class LoanItemsTracker {
         } catch (IOException e) {
             out.printf("Failed to save the loans: %s", e);
         }
-    }
-
-    private void handleListSameType(Scanner in, PrintStream out) {
-        var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
-        var type = Prompt.string()
-                .message(typeMessage)
-                .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
-                .run(in, out);
     }
 
     /**
@@ -260,15 +265,14 @@ public class LoanItemsTracker {
     /**
      * Writes the given list of loans out.
      * 
-     * @param loans The loans to write.
-     * @param out   The output to write to.
+     * @param filter Determines whether a loan item should be shown.
      */
-    private void printLoans(List<LoanItem> loans, PrintStream out) {
+    private void printLoans(Predicate<LoanItem> filter) {
         var builder = new StringBuilder();
         if (loans.isEmpty()) {
             builder.append("No items to show");
         } else {
-            loans.stream().forEach(new Consumer<LoanItem>() {
+            loans.stream().filter(filter).forEach(new Consumer<LoanItem>() {
                 private int counter = 1;
 
                 @Override
@@ -277,7 +281,7 @@ public class LoanItemsTracker {
                 }
             });
         }
-        out.println(builder);
+        output.println(builder);
     }
 
     public void run() {

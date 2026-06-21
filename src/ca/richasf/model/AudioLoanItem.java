@@ -33,4 +33,15 @@ public final class AudioLoanItem extends LoanItem {
     public Duration getDuration() {
         return duration;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append(super.toString())
+                .append("- ")
+                .append(duration.toHours()).append(" hour(s) ")
+                .append(duration.toMinutesPart()).append(" minute(s) ")
+                .append(duration.toSecondsPart()).append(" second(s)")
+                .append("long").append('\n')
+                .toString();
+    }
 }

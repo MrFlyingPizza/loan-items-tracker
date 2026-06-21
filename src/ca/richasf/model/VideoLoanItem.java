@@ -35,4 +35,11 @@ public final class VideoLoanItem extends LoanItem {
     public String getGenre() {
         return genre;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append(super.toString())
+                .append("- ").append(genre).append(" genre").append('\n')
+                .toString();
+    }
 }

@@ -34,4 +34,11 @@ public final class BookLoanItem extends LoanItem {
     public int getPageCount() {
         return pageCount;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append(super.toString())
+                .append("- ").append(pageCount).append(" pages").append('\n')
+                .toString();
+    }
 }

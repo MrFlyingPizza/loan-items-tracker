@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * Represents a loan that has been placed by someone for something.
  */
-public class LoanItem implements Comparable<LoanItem> {
+public abstract class LoanItem implements Comparable<LoanItem> {
 
     private final String name, publisher, loanedTo;
     private final LocalDate due;

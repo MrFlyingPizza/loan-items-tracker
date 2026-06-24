@@ -75,9 +75,15 @@ public class Menu {
             throw new RuntimeException("Cannot run menu when there is no option");
         }
 
+        var errorMessage = "Invalid selection. Enter a number between 1 and %d"
+                .formatted(options.size());
+
         while (running) {
             display(out);
-            var value = prompt().run(in, out);
+            var value = Prompt.integer("Enter a valid integer.")
+                    .message("Choose an option by entering 1-%d: ".formatted(options.size()))
+                    .validator(Validator.bound(1, options.size(), errorMessage))
+                    .run(in, out);
             dispatch(value, in, out);
         }
     }
@@ -129,19 +135,6 @@ public class Menu {
         /* End options */
 
         out.print(builder);
-    }
-
-    /**
-     * Creates the prompt to show the user to get a selection.
-     * 
-     * @return The prompt to prompt the user with.
-     */
-    Prompt<Integer> prompt() {
-        var errorMessage = "Invalid selection. Enter a number between 1 and %d"
-                .formatted(options.size());
-        return Prompt.integer("Enter a valid integer.")
-                .message("Choose an option by entering 1-%d: ".formatted(options.size()))
-                .validator(Validator.bound(1, options.size(), errorMessage));
     }
 
     /**

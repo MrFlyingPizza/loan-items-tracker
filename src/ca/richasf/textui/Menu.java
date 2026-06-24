@@ -53,7 +53,7 @@ public class Menu {
      * @param text   What to display for the option.
      * @param action What to do if the user selects this option.
      */
-    public void addOption(String text, Menu.Action action) {
+    public void addOption(String text, Action action) {
         options.add(new Option(text, action));
     }
 

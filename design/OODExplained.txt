@@ -1,0 +1,24 @@
+Our object-oriented design exposes a central API for the task of creating loan
+items based on what kind of items is being loaned, which is the LoanItemFactory.
+This API exposes a single method used for creating all types of loan items. This
+is done by exposing loan item specific data objects through LoanItemFactory,
+such as book, audio, and video, which LoanItemFactory takes and creates the
+corresponding loan item from. This makes LoanItemFactory extensible by allowing
+new loan item types to be created in the future through simply overloading the
+getInstance method with new data objects that represent the item type being
+loaned. Existing users of getInstance remains compatible due to the getInstance
+method returning the common LoanItem interface.
+
+Our object-oriented design also have extensive ways of handling user inputs
+through the Prompt class. The prompt class is composed of a Parser and a
+Validator, which allows the same prompt class to read, expect, and return
+an unlimited types of values. To obtain a value from the standard input, the
+user of the API simply need to use the Prompt's fluent API to provide a Parser,
+and a Validator, then run the prompt with an input and output. The Parser and
+Validator are open functional interfaces that the user can fulfill inline using
+lambda functions. For convenience, the Prompt and Validator APIs also
+provide predefined Parser and Validator implementations through static methods
+that can be easily reused. And most importantly, Prompts abstract away the
+control flow cycle of reading input, parsing, validating, and informing the user
+on failure, which simplifies it to a simple construct and run that guarantees a
+correct value from the user.

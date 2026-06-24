@@ -93,7 +93,7 @@ public class Menu {
      * 
      * @param out The output.
      */
-    void display(PrintStream out) {
+    private void display(PrintStream out) {
         /* Start banner */
         final var C = "#";
         final var S = ' ';
@@ -140,7 +140,7 @@ public class Menu {
     /**
      * Dispatch the user's selection.
      */
-    void dispatch(Integer selection, Scanner in, PrintStream out) {
+    private void dispatch(Integer selection, Scanner in, PrintStream out) {
         options.get(selection - 1).action().perform(in, out);
     }
 }

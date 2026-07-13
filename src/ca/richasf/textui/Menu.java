@@ -18,11 +18,8 @@ public class Menu {
     public interface Action {
         /**
          * Performs this action.
-         * 
-         * @param in  The input to read from.
-         * @param out The output to write to.
          */
-        void perform(Scanner in, PrintStream out);
+        void perform();
     }
 
     /**
@@ -141,6 +138,6 @@ public class Menu {
      * Dispatch the user's selection.
      */
     private void dispatch(Integer selection, Scanner in, PrintStream out) {
-        options.get(selection - 1).action().perform(in, out);
+        options.get(selection - 1).action().perform();
     }
 }

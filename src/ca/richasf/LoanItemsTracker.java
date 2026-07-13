@@ -42,7 +42,7 @@ import static ca.richasf.textui.Validator.*;
  */
 public class LoanItemsTracker {
 
-    private static final Type type = TypeToken.getParameterized(
+    private final Type type = TypeToken.getParameterized(
             List.class,
             LoanItem.class)
             .getType();
@@ -53,7 +53,7 @@ public class LoanItemsTracker {
      * @param loanItem The loan item to display.
      * @return The display string.
      */
-    private static String formatLoanItem(LoanItem loanItem) {
+    private String formatLoanItem(LoanItem loanItem) {
         var result = new StringBuilder();
 
         var type = switch (loanItem) {
@@ -268,13 +268,10 @@ public class LoanItemsTracker {
 
     /**
      * Constructs a new loan item tracker.
-     * 
-     * @param input  The input to read user input from.
-     * @param output The output to display to.
      */
-    private LoanItemsTracker(Scanner input, PrintStream output) {
-        this.input = input;
-        this.output = output;
+    public LoanItemsTracker() {
+        this.input = new Scanner(System.in);
+        this.output = System.out;
 
         gson = new GsonBuilder()
                 .registerTypeAdapterFactory(RuntimeTypeAdapterFactory.of(LoanItem.class)
@@ -321,6 +318,34 @@ public class LoanItemsTracker {
         mainMenu.addOption("List Upcoming Items", listUpcomingHandler);
         mainMenu.addOption("List All Items of the Same Type", listSameTypeHandler);
         mainMenu.addOption("Exit", exitHandler);
+    }
+
+    protected void handleListAllLoanItems() {
+
+    }
+
+    protected void handleAddLoanItems() {
+
+    }
+
+    protected void handleRemoveLoanItems() {
+
+    }
+
+    protected void handleListOverdueLoanItems() {
+
+    }
+
+    protected void handleListUpcomingLoanItems() {
+
+    }
+
+    protected void handleListSameTypeLoanItems() {
+
+    }
+
+    protected void handleExit() {
+
     }
 
     /**
@@ -381,6 +406,6 @@ public class LoanItemsTracker {
      * @throws Exception If an error occurs.
      */
     public static void main(String[] args) throws Exception {
-        new LoanItemsTracker(new Scanner(System.in), System.out).run();
+        new LoanItemsTracker().run();
     }
 }

@@ -112,9 +112,63 @@ public class LoanItemsTracker {
     private final Gson gson;
     private final Menu mainMenu = new Menu("Loan Items Tracker");;
     private final LoanItemFactory factory = new LoanItemFactory();
-    private final Menu.Action listAllHandler = () -> {
+
+    /**
+     * Constructs a new loan item tracker.
+     */
+    public LoanItemsTracker() {
+        gson = new GsonBuilder()
+                .registerTypeAdapterFactory(RuntimeTypeAdapterFactory.of(LoanItem.class)
+                        .registerSubtype(BookLoanItem.class, "Book")
+                        .registerSubtype(AudioLoanItem.class, "Audio")
+                        .registerSubtype(VideoLoanItem.class, "Video"))
+                .registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>() {
+                    @Override
+                    public void write(JsonWriter out, LocalDate value) throws IOException {
+                        out.value(value.toString());
+                    }
+
+                    @Override
+                    public LocalDate read(JsonReader in) throws IOException {
+                        return LocalDate.parse(in.nextString());
+                    }
+                })
+                .registerTypeAdapter(Duration.class, new TypeAdapter<Duration>() {
+                    @Override
+                    public void write(JsonWriter out, Duration value) throws IOException {
+                        out.value(value.toMillis());
+                    }
+
+                    @Override
+                    public Duration read(JsonReader in) throws IOException {
+                        return Duration.ofMillis(in.nextLong());
+                    }
+                })
+                .create();
+
+        var path = Path.of(filePath);
+        if (Files.exists(path) && Files.isRegularFile(path)) {
+            try (var reader = Files.newBufferedReader(path)) {
+                load(reader);
+            } catch (Exception e) {
+                System.out.printf("Failed to read save file '%s': %s", filePath, e);
+            }
+        }
+
+        mainMenu.addOption("List All Items", this::handleListAllLoanItems);
+        mainMenu.addOption("Add an Item", this::handleAddLoanItems);
+        mainMenu.addOption("Remove an Item", this::handleRemoveLoanItems);
+        mainMenu.addOption("List Overdue Items", this::handleListOverdueLoanItems);
+        mainMenu.addOption("List Upcoming Items", this::handleListUpcomingLoanItems);
+        mainMenu.addOption("List All Items of the Same Type", this::handleListSameTypeLoanItems);
+        mainMenu.addOption("Exit", this::handleExit);
+    }
+
+    protected void handleListAllLoanItems() {
         printLoans((item) -> true);
-    }, addHandler = () -> {
+    }
+
+    protected void handleAddLoanItems() {
 
         var name = Prompt.string()
                 .message("Enter the loan item's name: ")
@@ -212,7 +266,11 @@ public class LoanItemsTracker {
         loans.add(loanItem);
 
         output.printf("%s has been added to the list.\n", loanItem.getName());
-    }, removeHandler = () -> {
+
+    }
+
+    protected void handleRemoveLoanItems() {
+
         if (loans.size() == 0) {
             output.println("There is currently no loan to remove.");
             return;
@@ -236,11 +294,21 @@ public class LoanItemsTracker {
         loans.remove(index);
 
         output.println("%s has been removed from the list.".formatted(toRemove.getName()));
-    }, listOverdueHandler = () -> {
+
+    }
+
+    protected void handleListOverdueLoanItems() {
         printLoans(loan -> loan.getDue().isBefore(LocalDate.now()));
-    }, listUpcomingHandler = () -> {
+
+    }
+
+    protected void handleListUpcomingLoanItems() {
         printLoans(loan -> !loan.getDue().isBefore(LocalDate.now()));
-    }, listSameTypeHandler = () -> {
+
+    }
+
+    protected void handleListSameTypeLoanItems() {
+
         var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
         var type = Prompt.string()
                 .message(typeMessage)
@@ -253,7 +321,10 @@ public class LoanItemsTracker {
             case "v" -> VideoLoanItem.class;
             default -> throw new RuntimeException("Unexpected class");
         }));
-    }, exitHandler = () -> {
+    }
+
+    protected void handleExit() {
+
         output.printf("Saving the loans to %s\n", filePath);
         try (var writer = Files.newBufferedWriter(Path.of(filePath))) {
             save(writer);
@@ -264,85 +335,6 @@ public class LoanItemsTracker {
         } catch (IOException e) {
             output.printf("Failed to save the loans: %s", e);
         }
-    };
-
-    /**
-     * Constructs a new loan item tracker.
-     */
-    public LoanItemsTracker() {
-        gson = new GsonBuilder()
-                .registerTypeAdapterFactory(RuntimeTypeAdapterFactory.of(LoanItem.class)
-                        .registerSubtype(BookLoanItem.class, "Book")
-                        .registerSubtype(AudioLoanItem.class, "Audio")
-                        .registerSubtype(VideoLoanItem.class, "Video"))
-                .registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>() {
-                    @Override
-                    public void write(JsonWriter out, LocalDate value) throws IOException {
-                        out.value(value.toString());
-                    }
-
-                    @Override
-                    public LocalDate read(JsonReader in) throws IOException {
-                        return LocalDate.parse(in.nextString());
-                    }
-                })
-                .registerTypeAdapter(Duration.class, new TypeAdapter<Duration>() {
-                    @Override
-                    public void write(JsonWriter out, Duration value) throws IOException {
-                        out.value(value.toMillis());
-                    }
-
-                    @Override
-                    public Duration read(JsonReader in) throws IOException {
-                        return Duration.ofMillis(in.nextLong());
-                    }
-                })
-                .create();
-
-        var path = Path.of(filePath);
-        if (Files.exists(path) && Files.isRegularFile(path)) {
-            try (var reader = Files.newBufferedReader(path)) {
-                load(reader);
-            } catch (Exception e) {
-                System.out.printf("Failed to read save file '%s': %s", filePath, e);
-            }
-        }
-
-        mainMenu.addOption("List All Items", listAllHandler);
-        mainMenu.addOption("Add an Item", addHandler);
-        mainMenu.addOption("Remove an Item", removeHandler);
-        mainMenu.addOption("List Overdue Items", listOverdueHandler);
-        mainMenu.addOption("List Upcoming Items", listUpcomingHandler);
-        mainMenu.addOption("List All Items of the Same Type", listSameTypeHandler);
-        mainMenu.addOption("Exit", exitHandler);
-    }
-
-    protected void handleListAllLoanItems() {
-
-    }
-
-    protected void handleAddLoanItems() {
-
-    }
-
-    protected void handleRemoveLoanItems() {
-
-    }
-
-    protected void handleListOverdueLoanItems() {
-
-    }
-
-    protected void handleListUpcomingLoanItems() {
-
-    }
-
-    protected void handleListSameTypeLoanItems() {
-
-    }
-
-    protected void handleExit() {
-
     }
 
     /**

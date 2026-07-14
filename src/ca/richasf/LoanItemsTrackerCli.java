@@ -37,7 +37,7 @@ import ca.richasf.textui.Prompt;
 import ca.richasf.textui.Menu;
 import static ca.richasf.textui.Validator.*;
 
-public class CommandLineLoanItemsTracker {
+public class LoanItemsTrackerCli {
 
     private static final Type type = TypeToken.getParameterized(
             List.class,
@@ -55,7 +55,7 @@ public class CommandLineLoanItemsTracker {
     /**
      * Constructs a new loan item tracker.
      */
-    public CommandLineLoanItemsTracker() {
+    public LoanItemsTrackerCli() {
         gson = new GsonBuilder()
                 .registerTypeAdapterFactory(RuntimeTypeAdapterFactory.of(LoanItem.class)
                         .registerSubtype(BookLoanItem.class, "Book")

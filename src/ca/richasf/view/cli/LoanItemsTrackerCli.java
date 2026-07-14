@@ -1,4 +1,4 @@
-package ca.richasf;
+package ca.richasf.view.cli;
 
 import java.io.IOException;
 import java.io.PrintStream;

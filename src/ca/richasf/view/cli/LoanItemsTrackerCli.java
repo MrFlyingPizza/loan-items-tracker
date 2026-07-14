@@ -103,11 +103,11 @@ public class LoanItemsTrackerCli {
         mainMenu.addOption("Exit", this::handleExit);
     }
 
-    protected void handleListAllLoanItems() {
+    private void handleListAllLoanItems() {
         printLoans((item) -> true);
     }
 
-    protected void handleAddLoanItems() {
+    private void handleAddLoanItems() {
 
         var name = Prompt.string()
                 .message("Enter the loan item's name: ")
@@ -208,7 +208,7 @@ public class LoanItemsTrackerCli {
 
     }
 
-    protected void handleRemoveLoanItems() {
+    private void handleRemoveLoanItems() {
 
         if (loans.size() == 0) {
             output.println("There is currently no loan to remove.");
@@ -236,17 +236,17 @@ public class LoanItemsTrackerCli {
 
     }
 
-    protected void handleListOverdueLoanItems() {
+    private void handleListOverdueLoanItems() {
         printLoans(loan -> loan.getDue().isBefore(LocalDate.now()));
 
     }
 
-    protected void handleListUpcomingLoanItems() {
+    private void handleListUpcomingLoanItems() {
         printLoans(loan -> !loan.getDue().isBefore(LocalDate.now()));
 
     }
 
-    protected void handleListSameTypeLoanItems() {
+    private void handleListSameTypeLoanItems() {
 
         var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
         var type = Prompt.string()
@@ -262,7 +262,7 @@ public class LoanItemsTrackerCli {
         }));
     }
 
-    protected void handleExit() {
+    private void handleExit() {
 
         output.printf("Saving the loans to %s\n", filePath);
         try (var writer = Files.newBufferedWriter(Path.of(filePath))) {

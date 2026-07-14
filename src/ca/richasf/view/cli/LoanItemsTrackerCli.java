@@ -2,32 +2,20 @@ package ca.richasf.view.cli;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.util.stream.Stream;
+
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
-import ca.richasf.gson.extras.RuntimeTypeAdapterFactory;
+import ca.richasf.control.LoanItemsController;
 import ca.richasf.model.AudioLoanItem;
 import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
@@ -39,59 +27,23 @@ import static ca.richasf.textui.Validator.*;
 
 public class LoanItemsTrackerCli {
 
-    private static final Type type = TypeToken.getParameterized(
-            List.class,
-            LoanItem.class)
-            .getType();
-
     private final Scanner input = new Scanner(System.in);
     private final PrintStream output = System.out;
-    private final List<LoanItem> loans = new ArrayList<>();
-    private final String filePath = "./list.json";
-    private final Gson gson;
     private final Menu mainMenu = new Menu("Loan Items Tracker");;
     private final LoanItemFactory factory = new LoanItemFactory();
+    private final String saveFilePath = "./list.json";
+    private final LoanItemsController controller;
 
     /**
      * Constructs a new loan item tracker.
      */
     public LoanItemsTrackerCli() {
-        gson = new GsonBuilder()
-                .registerTypeAdapterFactory(RuntimeTypeAdapterFactory.of(LoanItem.class)
-                        .registerSubtype(BookLoanItem.class, "Book")
-                        .registerSubtype(AudioLoanItem.class, "Audio")
-                        .registerSubtype(VideoLoanItem.class, "Video"))
-                .registerTypeAdapter(LocalDate.class, new TypeAdapter<LocalDate>() {
-                    @Override
-                    public void write(JsonWriter out, LocalDate value) throws IOException {
-                        out.value(value.toString());
-                    }
+        controller = new LoanItemsController();
 
-                    @Override
-                    public LocalDate read(JsonReader in) throws IOException {
-                        return LocalDate.parse(in.nextString());
-                    }
-                })
-                .registerTypeAdapter(Duration.class, new TypeAdapter<Duration>() {
-                    @Override
-                    public void write(JsonWriter out, Duration value) throws IOException {
-                        out.value(value.toMillis());
-                    }
-
-                    @Override
-                    public Duration read(JsonReader in) throws IOException {
-                        return Duration.ofMillis(in.nextLong());
-                    }
-                })
-                .create();
-
-        var path = Path.of(filePath);
-        if (Files.exists(path) && Files.isRegularFile(path)) {
-            try (var reader = Files.newBufferedReader(path)) {
-                load(reader);
-            } catch (Exception e) {
-                System.out.printf("Failed to read save file '%s': %s", filePath, e);
-            }
+        try {
+            controller.loadLoanItems();
+        } catch (JsonIOException | JsonSyntaxException | IOException e) {
+            System.out.printf("Failed to read save file '%s': %s", saveFilePath, e);
         }
 
         mainMenu.addOption("List All Items", this::handleListAllLoanItems);
@@ -104,7 +56,7 @@ public class LoanItemsTrackerCli {
     }
 
     private void handleListAllLoanItems() {
-        printLoans((item) -> true);
+        printLoans(controller.streamLoanItems());
     }
 
     private void handleAddLoanItems() {
@@ -202,7 +154,7 @@ public class LoanItemsTrackerCli {
             default -> throw new RuntimeException("Unexpected type.");
         };
 
-        loans.add(loanItem);
+        controller.addLoanItem(loanItem);
 
         output.printf("%s has been added to the list.\n", loanItem.getName());
 
@@ -210,17 +162,17 @@ public class LoanItemsTrackerCli {
 
     private void handleRemoveLoanItems() {
 
-        if (loans.size() == 0) {
+        if (controller.countLoanItems() == 0) {
             output.println("There is currently no loan to remove.");
             return;
         }
 
-        printLoans((item) -> true);
+        printLoans(controller.streamLoanItems());
         var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
-                .formatted(loans.size());
+                .formatted(controller.countLoanItems());
         var selection = Prompt.integer("Enter a valid integer.")
                 .message("Enter the item number you want to remove (0 to cancel): ")
-                .validator(bound(0, loans.size(), selectionErrorMessage))
+                .validator(bound(0, controller.countLoanItems(), selectionErrorMessage))
                 .run(input, output);
 
         if (selection == 0) {
@@ -229,32 +181,29 @@ public class LoanItemsTrackerCli {
         }
 
         var index = selection - 1;
-        var toRemove = loans.get(index);
-        loans.remove(index);
+        var toRemove = controller.getLoanItem(index);
+        controller.removeLoanItem(index);
 
         output.println("%s has been removed from the list.".formatted(toRemove.getName()));
-
     }
 
     private void handleListOverdueLoanItems() {
-        printLoans(loan -> loan.getDue().isBefore(LocalDate.now()));
+        printLoans(controller.streamOverdueLoanItems());
 
     }
 
     private void handleListUpcomingLoanItems() {
-        printLoans(loan -> !loan.getDue().isBefore(LocalDate.now()));
-
+        printLoans(controller.streamUpcomingLoanItems());
     }
 
     private void handleListSameTypeLoanItems() {
-
         var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
         var type = Prompt.string()
                 .message(typeMessage)
                 .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
                 .run(input, output);
 
-        printLoans(loan -> loan.getClass().equals(switch (type) {
+        printLoans(controller.streamSameTypeLoanItems(switch (type) {
             case "b" -> BookLoanItem.class;
             case "a" -> AudioLoanItem.class;
             case "v" -> VideoLoanItem.class;
@@ -264,16 +213,15 @@ public class LoanItemsTrackerCli {
 
     private void handleExit() {
 
-        output.printf("Saving the loans to %s\n", filePath);
-        try (var writer = Files.newBufferedWriter(Path.of(filePath))) {
-            save(writer);
+        output.printf("Saving the loans to %s\n", saveFilePath);
 
-            mainMenu.stop();
-
-            output.println("Thank you for using our loan items tracker!");
-        } catch (IOException e) {
+        try {
+            controller.saveLoanItems();
+        } catch (Exception e) {
             output.printf("Failed to save the loans: %s", e);
         }
+
+        output.println("Thank you for using our loan items tracker!");
     }
 
     /**
@@ -335,34 +283,13 @@ public class LoanItemsTrackerCli {
     }
 
     /**
-     * Read loans from a source.
-     * 
-     * @param reader The source.
-     * @throws JsonIOException     If JSON reading error occurs.
-     * @throws JsonSyntaxException If JSON is malformed.
-     */
-    private void load(Reader reader) throws JsonIOException, JsonSyntaxException {
-        loans.addAll(gson.fromJson(reader, type));
-    }
-
-    /**
-     * Write loans to a destination.
-     * 
-     * @param writer The destination.
-     * @throws IOException If writing loans fails.
-     */
-    private void save(Writer writer) throws IOException {
-        writer.write(gson.toJson(loans, type));
-    }
-
-    /**
      * Writes the given list of loans output.
      * 
      * @param filter Determines whether a loan item should be shown.
      */
-    private void printLoans(Predicate<LoanItem> filter) {
+    private void printLoans(Stream<LoanItem> loanItems) {
         var builder = new StringBuilder();
-        var count = loans.stream().filter(filter).map(new Function<LoanItem, LoanItem>() {
+        var count = loanItems.map(new Function<LoanItem, LoanItem>() {
             private int counter = 1;
 
             @Override

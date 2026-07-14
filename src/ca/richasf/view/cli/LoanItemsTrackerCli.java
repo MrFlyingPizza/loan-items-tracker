@@ -46,182 +46,163 @@ public class LoanItemsTrackerCli {
             System.out.printf("Failed to read save file '%s': %s", saveFilePath, e);
         }
 
-        mainMenu.addOption("List All Items", this::handleListAllLoanItems);
-        mainMenu.addOption("Add an Item", this::handleAddLoanItems);
-        mainMenu.addOption("Remove an Item", this::handleRemoveLoanItems);
-        mainMenu.addOption("List Overdue Items", this::handleListOverdueLoanItems);
-        mainMenu.addOption("List Upcoming Items", this::handleListUpcomingLoanItems);
-        mainMenu.addOption("List All Items of the Same Type", this::handleListSameTypeLoanItems);
-        mainMenu.addOption("Exit", this::handleExit);
-    }
+        mainMenu.addOption("List All Items", () -> printLoans(controller.streamLoanItems()));
 
-    private void handleListAllLoanItems() {
-        printLoans(controller.streamLoanItems());
-    }
+        mainMenu.addOption("Add an Item", () -> {
 
-    private void handleAddLoanItems() {
+            var name = Prompt.string()
+                    .message("Enter the loan item's name: ")
+                    .validator(notBlank("The name must not be blank."))
+                    .run(input, output);
 
-        var name = Prompt.string()
-                .message("Enter the loan item's name: ")
-                .validator(notBlank("The name must not be blank."))
-                .run(input, output);
+            var yearDue = Prompt.integer("Enter a valid integer.")
+                    .message("Enter the year of the due date (e.g., 2026): ")
+                    .run(input, output);
 
-        var yearDue = Prompt.integer("Enter a valid integer.")
-                .message("Enter the year of the due date (e.g., 2026): ")
-                .run(input, output);
+            var monthDue = Prompt.integer("Enter a valid integer.")
+                    .message("Enter the month of the due date (1-12): ")
+                    .validator(bound(1, 12,
+                            "Please enter a valid month between 1 and 12."))
+                    .run(input, output);
 
-        var monthDue = Prompt.integer("Enter a valid integer.")
-                .message("Enter the month of the due date (1-12): ")
-                .validator(bound(1, 12,
-                        "Please enter a valid month between 1 and 12."))
-                .run(input, output);
+            var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
 
-        var maxDay = YearMonth.of(yearDue, Month.of(monthDue)).lengthOfMonth();
+            var dayDue = Prompt.integer("Enter a valid integer.")
+                    .message("Enter the day of the due date in the year and month (1-%d): "
+                            .formatted(maxDay))
+                    .validator(bound(1, maxDay,
+                            "Please enter a valid month between 1 and %d".formatted(maxDay)))
+                    .run(input, output);
 
-        var dayDue = Prompt.integer("Enter a valid integer.")
-                .message("Enter the day of the due date in the year and month (1-%d): "
-                        .formatted(maxDay))
-                .validator(bound(1, maxDay,
-                        "Please enter a valid month between 1 and %d".formatted(maxDay)))
-                .run(input, output);
+            var due = LocalDate.of(yearDue, monthDue, dayDue);
 
-        var due = LocalDate.of(yearDue, monthDue, dayDue);
+            var publisher = Prompt.string()
+                    .message("Enter the publisher of the loan item: ")
+                    .run(input, output);
 
-        var publisher = Prompt.string()
-                .message("Enter the publisher of the loan item: ")
-                .run(input, output);
+            var loanedTo = Prompt.string()
+                    .message("Enter the name to which the item is loaned: ")
+                    .validator(notBlank("The loaned-to name must not be blank."))
+                    .run(input, output);
 
-        var loanedTo = Prompt.string()
-                .message("Enter the name to which the item is loaned: ")
-                .validator(notBlank("The loaned-to name must not be blank."))
-                .run(input, output);
+            var typeMessage = "Enter the type of loan item to add (b: book, a: audio, v: video): ";
+            var type = Prompt.string()
+                    .message(typeMessage)
+                    .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
+                    .run(input, output);
 
-        var typeMessage = "Enter the type of loan item to add (b: book, a: audio, v: video): ";
-        var type = Prompt.string()
-                .message(typeMessage)
-                .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
-                .run(input, output);
+            var loan = new LoanItemFactory.Loan(loanedTo, due);
 
-        var loan = new LoanItemFactory.Loan(loanedTo, due);
+            var loanItem = switch (type) {
+                case "b" -> {
+                    var pageCountErrorMessage = "The number of pages cannot be negative.";
+                    var pageCount = Prompt.integer("Enter a valid integer.")
+                            .message("Enter the number of pages: ")
+                            .validator(nonNegative(pageCountErrorMessage))
+                            .run(input, output);
+                    var book = new LoanItemFactory.Book(name, publisher, pageCount);
+                    yield factory.getInstance(book, loan);
+                }
+                case "a" -> {
+                    var hoursErrorMessage = "The number of hours cannot be negative.";
+                    var hours = Prompt.integer("Enter a valid integer.")
+                            .message("Enter the number of hours of the audio: ")
+                            .validator(nonNegative(hoursErrorMessage))
+                            .run(input, output);
 
-        var loanItem = switch (type) {
-            case "b" -> {
-                var pageCountErrorMessage = "The number of pages cannot be negative.";
-                var pageCount = Prompt.integer("Enter a valid integer.")
-                        .message("Enter the number of pages: ")
-                        .validator(nonNegative(pageCountErrorMessage))
-                        .run(input, output);
-                var book = new LoanItemFactory.Book(name, publisher, pageCount);
-                yield factory.getInstance(book, loan);
+                    var duration = Duration.ofHours(hours);
+
+                    var minutesErrorMessage = "The number of minutes cannot be negative.";
+                    var minutes = Prompt.integer("Enter a valid integer.")
+                            .message("Enter the number of minutes of the audio: ")
+                            .validator(nonNegative(minutesErrorMessage))
+                            .run(input, output);
+
+                    duration = duration.plusMinutes(minutes);
+
+                    var secondsErrorMessage = "The number of seconds cannot be negative.";
+                    var seconds = Prompt.integer("Enter a valid integer.")
+                            .message("Enter the number of seconds of the audio: ")
+                            .validator(nonNegative(secondsErrorMessage))
+                            .run(input, output);
+
+                    duration = duration.plusSeconds(seconds);
+
+                    var audio = new LoanItemFactory.Audio(name, publisher, duration);
+                    yield factory.getInstance(audio, loan);
+                }
+                case "v" -> {
+                    var genre = Prompt.string()
+                            .message("Enter the genre (if unknown type \"unknown\"): ")
+                            .validator(notBlank("The genre must not be blank."))
+                            .run(input, output);
+
+                    var video = new LoanItemFactory.Video(name, publisher, genre);
+                    yield factory.getInstance(video, loan);
+                }
+                default -> throw new RuntimeException("Unexpected type.");
+            };
+            controller.addLoanItem(loanItem);
+
+            output.printf("%s has been added to the list.\n", loanItem.getName());
+        });
+
+        mainMenu.addOption("Remove an Item", () -> {
+            if (controller.countLoanItems() == 0) {
+                output.println("There is currently no loan to remove.");
+                return;
             }
-            case "a" -> {
-                var hoursErrorMessage = "The number of hours cannot be negative.";
-                var hours = Prompt.integer("Enter a valid integer.")
-                        .message("Enter the number of hours of the audio: ")
-                        .validator(nonNegative(hoursErrorMessage))
-                        .run(input, output);
 
-                var duration = Duration.ofHours(hours);
+            printLoans(controller.streamLoanItems());
+            var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
+                    .formatted(controller.countLoanItems());
+            var selection = Prompt.integer("Enter a valid integer.")
+                    .message("Enter the item number you want to remove (0 to cancel): ")
+                    .validator(bound(0, controller.countLoanItems(), selectionErrorMessage))
+                    .run(input, output);
 
-                var minutesErrorMessage = "The number of minutes cannot be negative.";
-                var minutes = Prompt.integer("Enter a valid integer.")
-                        .message("Enter the number of minutes of the audio: ")
-                        .validator(nonNegative(minutesErrorMessage))
-                        .run(input, output);
-
-                duration = duration.plusMinutes(minutes);
-
-                var secondsErrorMessage = "The number of seconds cannot be negative.";
-                var seconds = Prompt.integer("Enter a valid integer.")
-                        .message("Enter the number of seconds of the audio: ")
-                        .validator(nonNegative(secondsErrorMessage))
-                        .run(input, output);
-
-                duration = duration.plusSeconds(seconds);
-
-                var audio = new LoanItemFactory.Audio(name, publisher, duration);
-                yield factory.getInstance(audio, loan);
+            if (selection == 0) {
+                output.println("Item removal cancelled");
+                return;
             }
-            case "v" -> {
-                var genre = Prompt.string()
-                        .message("Enter the genre (if unknown type \"unknown\"): ")
-                        .validator(notBlank("The genre must not be blank."))
-                        .run(input, output);
 
-                var video = new LoanItemFactory.Video(name, publisher, genre);
-                yield factory.getInstance(video, loan);
+            var index = selection - 1;
+            var toRemove = controller.getLoanItem(index);
+            controller.removeLoanItem(index);
+
+            output.println("%s has been removed from the list.".formatted(toRemove.getName()));
+        });
+
+        mainMenu.addOption("List Overdue Items", () -> printLoans(controller.streamOverdueLoanItems()));
+
+        mainMenu.addOption("List Upcoming Items", () -> printLoans(controller.streamUpcomingLoanItems()));
+
+        mainMenu.addOption("List All Items of the Same Type", () -> {
+            var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
+            var type = Prompt.string()
+                    .message(typeMessage)
+                    .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
+                    .run(input, output);
+
+            printLoans(controller.streamSameTypeLoanItems(switch (type) {
+                case "b" -> BookLoanItem.class;
+                case "a" -> AudioLoanItem.class;
+                case "v" -> VideoLoanItem.class;
+                default -> throw new RuntimeException("Unexpected class");
+            }));
+        });
+
+        mainMenu.addOption("Exit", () -> {
+            output.printf("Saving the loans to %s\n", saveFilePath);
+
+            try {
+                controller.saveLoanItems();
+            } catch (Exception e) {
+                output.printf("Failed to save the loans: %s", e);
             }
-            default -> throw new RuntimeException("Unexpected type.");
-        };
 
-        controller.addLoanItem(loanItem);
-
-        output.printf("%s has been added to the list.\n", loanItem.getName());
-
-    }
-
-    private void handleRemoveLoanItems() {
-
-        if (controller.countLoanItems() == 0) {
-            output.println("There is currently no loan to remove.");
-            return;
-        }
-
-        printLoans(controller.streamLoanItems());
-        var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
-                .formatted(controller.countLoanItems());
-        var selection = Prompt.integer("Enter a valid integer.")
-                .message("Enter the item number you want to remove (0 to cancel): ")
-                .validator(bound(0, controller.countLoanItems(), selectionErrorMessage))
-                .run(input, output);
-
-        if (selection == 0) {
-            output.println("Item removal cancelled");
-            return;
-        }
-
-        var index = selection - 1;
-        var toRemove = controller.getLoanItem(index);
-        controller.removeLoanItem(index);
-
-        output.println("%s has been removed from the list.".formatted(toRemove.getName()));
-    }
-
-    private void handleListOverdueLoanItems() {
-        printLoans(controller.streamOverdueLoanItems());
-
-    }
-
-    private void handleListUpcomingLoanItems() {
-        printLoans(controller.streamUpcomingLoanItems());
-    }
-
-    private void handleListSameTypeLoanItems() {
-        var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
-        var type = Prompt.string()
-                .message(typeMessage)
-                .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
-                .run(input, output);
-
-        printLoans(controller.streamSameTypeLoanItems(switch (type) {
-            case "b" -> BookLoanItem.class;
-            case "a" -> AudioLoanItem.class;
-            case "v" -> VideoLoanItem.class;
-            default -> throw new RuntimeException("Unexpected class");
-        }));
-    }
-
-    private void handleExit() {
-
-        output.printf("Saving the loans to %s\n", saveFilePath);
-
-        try {
-            controller.saveLoanItems();
-        } catch (Exception e) {
-            output.printf("Failed to save the loans: %s", e);
-        }
-
-        output.println("Thank you for using our loan items tracker!");
+            output.println("Thank you for using our loan items tracker!");
+        });
     }
 
     /**

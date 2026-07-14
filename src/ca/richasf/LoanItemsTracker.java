@@ -3,26 +3,7 @@ package ca.richasf;
 /**
  * Core class for managing loans.
  */
-public abstract class LoanItemsTracker {
-
-    abstract protected void handleListAllLoanItems();
-
-    abstract protected void handleAddLoanItems();
-
-    abstract protected void handleRemoveLoanItems();
-
-    abstract protected void handleListOverdueLoanItems();
-
-    abstract protected void handleListUpcomingLoanItems();
-
-    abstract protected void handleListSameTypeLoanItems();
-
-    abstract protected void handleExit();
-
-    /**
-     * Starts the loan items tracker.
-     */
-    abstract public void run();
+public class LoanItemsTracker {
 
     /**
      * Entrypoint.

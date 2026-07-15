@@ -6,10 +6,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonIOException;
@@ -206,79 +204,14 @@ public class LoanItemsTrackerCli {
     }
 
     /**
-     * Convert a loan item to be displayed as a string.
-     * 
-     * @param loanItem The loan item to display.
-     * @return The display string.
-     */
-    private String formatLoanItem(LoanItem loanItem) {
-        var result = new StringBuilder();
-
-        result.append("Loan Item Type: ").append(loanItem.getTypeAsString()).append('\n');
-        result.append(loanItem.getName()).append('\n');
-        result.append("- published by ").append(loanItem.getPublisher()).append('\n');
-        result.append("- loaned to ").append(loanItem.getLoanedTo()).append('\n');
-
-        var due = loanItem.getDue();
-        result.append("- ");
-        result.append("due on ").append(due);
-        var daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), due);
-        result.append(" (");
-        if (daysUntilDue > 0) {
-            result.append("due in ")
-                    .append(daysUntilDue)
-                    .append(" days(s)");
-        } else if (daysUntilDue < 0) {
-            result.append("overdue by ")
-                    .append(-daysUntilDue)
-                    .append(" days(s)");
-        } else {
-            result.append("due today");
-        }
-        result.append(')').append('\n');
-
-        result.append("- ");
-        switch (loanItem) {
-            case BookLoanItem book -> result.append(book.getPageCount()).append(" pages");
-            case AudioLoanItem audio -> {
-                var duration = audio.getDuration();
-                result.append(duration.toHours()).append(" hour(s) ")
-                        .append(duration.toMinutesPart()).append(" minute(s) ")
-                        .append(duration.toSecondsPart()).append(" second(s) ")
-                        .append("long");
-            }
-            case VideoLoanItem video -> result.append(video.getGenre()).append(" genre");
-            default -> {
-            }
-        }
-        result.append('\n');
-
-        return result.toString();
-    }
-
-    /**
      * Writes the given list of loans output.
      * 
      * @param filter Determines whether a loan item should be shown.
      */
     private void printLoans(Stream<LoanItem> loanItems) {
-        var builder = new StringBuilder();
-        var count = loanItems.map(new Function<LoanItem, LoanItem>() {
-            private int counter = 1;
+        var result = loanItems.collect(new LoanItemsListDisplayCollector());
 
-            @Override
-            public LoanItem apply(LoanItem item) {
-                builder.append('#').append(counter++).append('\n')
-                        .append(formatLoanItem(item));
-                return item;
-            }
-        }).count();
-
-        if (count == 0) {
-            builder.append("No items to show.\n");
-        }
-
-        output.println(builder);
+        output.println(result);
     }
 
     /**

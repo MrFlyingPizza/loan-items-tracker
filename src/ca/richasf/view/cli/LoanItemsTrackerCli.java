@@ -214,14 +214,7 @@ public class LoanItemsTrackerCli {
     private String formatLoanItem(LoanItem loanItem) {
         var result = new StringBuilder();
 
-        var type = switch (loanItem) {
-            case BookLoanItem item -> "Book";
-            case AudioLoanItem item -> "Audio";
-            case VideoLoanItem item -> "Video";
-            default -> "Unknown";
-        };
-
-        result.append("Loan Item Type: ").append(type).append('\n');
+        result.append("Loan Item Type: ").append(loanItem.getTypeAsString()).append('\n');
         result.append(loanItem.getName()).append('\n');
         result.append("- published by ").append(loanItem.getPublisher()).append('\n');
         result.append("- loaned to ").append(loanItem.getLoanedTo()).append('\n');

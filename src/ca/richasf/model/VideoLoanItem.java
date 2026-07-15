@@ -28,6 +28,14 @@ public final class VideoLoanItem extends LoanItem {
     }
 
     /**
+     * Should be "Video".
+     */
+    @Override
+    public String getTypeAsString() {
+        return "Video";
+    }
+
+    /**
      * Get the video's genre.
      * 
      * @return The genre.

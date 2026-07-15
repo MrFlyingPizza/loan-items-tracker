@@ -26,6 +26,14 @@ public final class AudioLoanItem extends LoanItem {
     }
 
     /**
+     * Should be "Audio".
+     */
+    @Override
+    public String getTypeAsString() {
+        return "Audio";
+    }
+
+    /**
      * Get the audio length.
      * 
      * @return The audio length.

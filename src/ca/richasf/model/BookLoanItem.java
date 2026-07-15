@@ -27,6 +27,14 @@ public final class BookLoanItem extends LoanItem {
     }
 
     /**
+     * Should be "Book".
+     */
+    @Override
+    public String getTypeAsString() {
+        return "Book";
+    }
+
+    /**
      * Get the page count.
      * 
      * @return The page count.

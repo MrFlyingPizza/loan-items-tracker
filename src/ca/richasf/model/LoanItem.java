@@ -76,6 +76,14 @@ public abstract class LoanItem implements Comparable<LoanItem> {
     }
 
     /**
+     * Get the string representation of the loan item's type.
+     * @return The loan item's type as string.
+     */
+    public String getTypeAsString() {
+        return "Unknown";
+    }
+
+    /**
      * Get string representation of this loan item.
      */
     @Override

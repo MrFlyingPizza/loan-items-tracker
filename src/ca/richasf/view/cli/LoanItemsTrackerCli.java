@@ -195,6 +195,7 @@ public class LoanItemsTrackerCli {
 
             try {
                 controller.saveLoanItems();
+                mainMenu.stop();
             } catch (Exception e) {
                 output.printf("Failed to save the loans: %s", e);
             }

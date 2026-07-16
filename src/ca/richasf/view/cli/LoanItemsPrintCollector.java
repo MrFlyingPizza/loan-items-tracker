@@ -17,7 +17,9 @@ import ca.richasf.model.VideoLoanItem;
 
 public class LoanItemsPrintCollector implements Collector<LoanItem, StringBuilder, Void> {
 
-    private int counter = 0;
+    private final String itemDivider = "\n\n";
+
+    private int itemNumber = 0;
 
     private final PrintStream output;
 
@@ -28,6 +30,11 @@ public class LoanItemsPrintCollector implements Collector<LoanItem, StringBuilde
     @Override
     public BiConsumer<StringBuilder, LoanItem> accumulator() {
         return (sb, item) -> {
+            if (itemNumber > 0) {
+                sb.append(itemDivider);
+            }
+
+            sb.append('#').append(++itemNumber).append('\n');
             sb.append("Loan Item Type: ").append(item.getTypeAsString()).append('\n');
             sb.append(item.getName()).append('\n');
             sb.append("- published by ").append(item.getPublisher()).append('\n');
@@ -68,10 +75,6 @@ public class LoanItemsPrintCollector implements Collector<LoanItem, StringBuilde
                 default -> {
                 }
             }
-
-            sb.append('\n');
-
-            counter++;
         };
     }
 
@@ -88,8 +91,8 @@ public class LoanItemsPrintCollector implements Collector<LoanItem, StringBuilde
     @Override
     public Function<StringBuilder, Void> finisher() {
         return sb -> {
-            if (counter == 0) {
-                sb.append("No items to show.\n");
+            if (itemNumber == 0) {
+                sb.append("No items to show.");
             }
 
             output.println(sb);

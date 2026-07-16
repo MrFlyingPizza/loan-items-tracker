@@ -6,6 +6,10 @@ import java.util.function.Predicate;
 import ca.richasf.model.LoanItem;
 
 public class LoanItemPredicates {
+    public static Predicate<LoanItem> all() {
+        return item -> true;
+    }
+
     public static Predicate<LoanItem> overdue() {
         return item -> item.getDue().isBefore(LocalDate.now());
     }

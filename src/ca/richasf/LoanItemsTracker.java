@@ -1,6 +1,7 @@
 package ca.richasf;
 
-import ca.richasf.view.cli.LoanItemsTrackerCli;
+import javax.swing.SwingUtilities;
+
 import ca.richasf.view.gui.LoanItemsTrackerGui;
 
 /**
@@ -15,6 +16,8 @@ public class LoanItemsTracker {
      * @throws Exception If an error occurs.
      */
     public static void main(String[] args) throws Exception {
-        new LoanItemsTrackerGui().start();
+        SwingUtilities.invokeLater(() -> {
+            new LoanItemsTrackerGui().start();
+        });
     }
 }

@@ -2,90 +2,73 @@ package ca.richasf.view.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JToggleButton;
-import javax.swing.border.BevelBorder;
-
+import ca.richasf.control.LoanItemPredicates;
 import ca.richasf.control.LoanItemsController;
 import ca.richasf.control.PersistenceException;
+import ca.richasf.model.AudioLoanItem;
+import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
+import ca.richasf.model.VideoLoanItem;
+
+import static ca.richasf.control.LoanItemPredicates.*;
 
 public class LoanItemsTrackerGui {
 
-    private final LoanItemsController controller;
+    private final LoanItemsController controller = new LoanItemsController();
+
+    private Predicate<LoanItem> listPredicate = LoanItemPredicates.all(),
+            typePredicate = LoanItemPredicates.all();
+
+    private final LoanItemsListView listView = new LoanItemsListView();
 
     public LoanItemsTrackerGui() {
-        controller = new LoanItemsController();
     }
 
-    private JPanel createLoanItemTypeButtonPanel() {
-        var panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-
-        var allButton = new JRadioButton("All", true);
-        var bookButton = new JRadioButton("Book");
-        var audioButton = new JRadioButton("Audio");
-        var videoButton = new JRadioButton("Video");
-
-        var buttons = new ButtonGroup();
-        buttons.add(allButton);
-        buttons.add(bookButton);
-        buttons.add(audioButton);
-        buttons.add(videoButton);
-
-        panel.add(allButton);
-        panel.add(bookButton);
-        panel.add(audioButton);
-        panel.add(videoButton);
-
-        allButton.setSelected(true);
-
-        return panel;
+    private void updateLoanItems() {
+        listView.updateLoanItems(controller.streamLoanItems()
+                .filter(listPredicate.and(typePredicate))
+                .toList());
     }
 
-    private JPanel createListButtonPanel() {
-        var panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+    private void updateListPredicate(Predicate<LoanItem> listPredicate) {
+        this.listPredicate = listPredicate;
+        updateLoanItems();
+    }
 
-        var allButton = new JToggleButton("List All");
-        var overdueButton = new JToggleButton("List Overdue");
-        var upcomingButton = new JToggleButton("List Upcoming");
-        var sameTypeButton = new JToggleButton("List Same Type");
-
-        var buttonGroup = new ButtonGroup();
-        buttonGroup.add(allButton);
-        buttonGroup.add(overdueButton);
-        buttonGroup.add(upcomingButton);
-        buttonGroup.add(sameTypeButton);
-
-        allButton.setSelected(true);
-
-        panel.add(allButton);
-        panel.add(overdueButton);
-        panel.add(upcomingButton);
-        panel.add(sameTypeButton);
-
-        return panel;
+    private void updateTypePredicate(Predicate<LoanItem> typePredicate) {
+        this.typePredicate = typePredicate;
+        updateLoanItems();
     }
 
     private JPanel createPageStartPanel() {
         var panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-        panel.add(createListButtonPanel());
-        panel.add(createLoanItemTypeButtonPanel());
+        var listOptionsView = ListOptionsView.of(
+                ListOptionsView.option("List All", all()),
+                ListOptionsView.option("List Overdue", overdue()),
+                ListOptionsView.option("List Upcoming", upcoming()));
+
+        listOptionsView.setSelectHandler(this::updateListPredicate);
+
+        panel.add(listOptionsView.getPanel());
+
+        var typeOptionsView = TypeOptionsView.of(
+                TypeOptionsView.option("All", all()),
+                TypeOptionsView.option("Book", sameType(BookLoanItem.class)),
+                TypeOptionsView.option("Audio", sameType(AudioLoanItem.class)),
+                TypeOptionsView.option("Video", sameType(VideoLoanItem.class)));
+
+        typeOptionsView.setSelectHandler(this::updateTypePredicate);
+
+        panel.add(typeOptionsView.getPanel());
 
         return panel;
     }
@@ -99,64 +82,8 @@ public class LoanItemsTrackerGui {
         return panel;
     }
 
-    private JPanel createLoanItemPanel(LoanItem item, Consumer<JPanel> removeListener) {
-        var panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-
-        var type = "Type: " + item.getTypeAsString();
-        var name = item.getName();
-        var publishedBy = "Published by " + item.getPublisher();
-        var loanedTo = "Loaned to " + item.getLoanedTo();
-        var due = new StringBuilder("Due on ").append(item.getDue()).append(" (");
-        var now = LocalDate.now();
-        var dueCompare = item.getDue().compareTo(now);
-        if (dueCompare > 0) {
-            due.append("due in ")
-                    .append(now.until(item.getDue(), ChronoUnit.DAYS))
-                    .append(" day(s)");
-        } else if (dueCompare < 0) {
-            due.append("overdue by ")
-                    .append(item.getDue().until(now, ChronoUnit.DAYS))
-                    .append(" day(s)");
-        } else {
-            due.append("due today");
-        }
-        due.append(")");
-
-        panel.add(new JLabel(type));
-        panel.add(new JLabel(name));
-        panel.add(new JLabel(publishedBy));
-        panel.add(new JLabel(loanedTo));
-        panel.add(new JLabel(due.toString()));
-
-        var removeButton = new JButton("Remove");
-        removeButton.addActionListener(e -> removeListener.accept(panel));
-
-        panel.add(removeButton);
-
-        return panel;
-    }
-
-    private JPanel createListPanel() {
-        var panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-
-        for (var loanItem : controller.iterateLoanItems()) {
-            var element = createLoanItemPanel(loanItem, itemPanel -> {
-                controller.removeLoanItem(loanItem);
-                panel.remove(itemPanel);
-                panel.revalidate();
-                panel.repaint();
-            });
-            element.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-            panel.add(element);
-        }
-
-        return panel;
-    }
-
     private JScrollPane createContentPanel() {
-        var scrollPane = new JScrollPane(createListPanel());
+        var scrollPane = new JScrollPane(listView.getPanel());
         return scrollPane;
     }
 
@@ -191,6 +118,8 @@ public class LoanItemsTrackerGui {
         frame.setMinimumSize(new Dimension(600, 400));
 
         frame.setVisible(true);
-    }
 
+        listView.setDeleteHandler(controller::removeLoanItem);
+        listView.updateLoanItems(controller.streamLoanItems().toList());
+    }
 }

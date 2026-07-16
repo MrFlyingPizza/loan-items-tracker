@@ -1,8 +1,9 @@
 package ca.richasf.control;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonIOException;
@@ -17,14 +18,14 @@ public class LoanItemsController {
     private static final String SAVE_FILE_PATH = "./list.json";
 
     private final SaveManager saveManager;
-    private final LinkedHashSet<LoanItem> loanItems;
+    private final List<LoanItem> loanItems;
 
     /**
      * Constructs a new loan items controller.
      */
     public LoanItemsController() {
         this.saveManager = new SaveManager(SAVE_FILE_PATH);
-        this.loanItems = new LinkedHashSet<>();
+        this.loanItems = new ArrayList<>();
     }
 
     /**

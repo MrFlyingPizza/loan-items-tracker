@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -98,7 +99,7 @@ public class LoanItemsTrackerGui {
         return panel;
     }
 
-    private JPanel createLoanItemPanel(LoanItem item) {
+    private JPanel createLoanItemPanel(LoanItem item, Consumer<JPanel> removeListener) {
         var panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
@@ -127,7 +128,11 @@ public class LoanItemsTrackerGui {
         panel.add(new JLabel(publishedBy));
         panel.add(new JLabel(loanedTo));
         panel.add(new JLabel(due.toString()));
-        panel.add(new JButton("Remove"));
+
+        var removeButton = new JButton("Remove");
+        removeButton.addActionListener(e -> removeListener.accept(panel));
+
+        panel.add(removeButton);
 
         return panel;
     }
@@ -137,7 +142,12 @@ public class LoanItemsTrackerGui {
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
         for (var loanItem : controller.iterateLoanItems()) {
-            var element = createLoanItemPanel(loanItem);
+            var element = createLoanItemPanel(loanItem, itemPanel -> {
+                controller.removeLoanItem(loanItem);
+                panel.remove(itemPanel);
+                panel.revalidate();
+                panel.repaint();
+            });
             element.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
             panel.add(element);
         }

@@ -150,7 +150,9 @@ public class LoanItemsTrackerCli {
                 return;
             }
 
-            controller.streamLoanItems().collect(new LoanItemsPrintCollector(output));
+            var loanItems = controller.streamLoanItems().toList();
+
+            loanItems.stream().collect(new LoanItemsPrintCollector(output));
             var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
                     .formatted(controller.countLoanItems());
             var selection = Prompt.integer("Enter a valid integer.")
@@ -164,10 +166,10 @@ public class LoanItemsTrackerCli {
             }
 
             var index = selection - 1;
-            var toRemove = controller.getLoanItem(index);
-            controller.removeLoanItem(index);
+            var toRemove = loanItems.get(index);
+            controller.removeLoanItem(toRemove);
 
-            output.println("%s has been removed from the list.".formatted(toRemove.getName()));
+            output.println(toRemove.getName() + " has been removed from the list.");
         });
 
         mainMenu.addOption("List Overdue Items", () -> controller.streamLoanItems()

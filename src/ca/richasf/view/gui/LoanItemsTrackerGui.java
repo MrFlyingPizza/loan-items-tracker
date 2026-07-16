@@ -2,7 +2,6 @@ package ca.richasf.view.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -18,10 +17,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.border.BevelBorder;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-
 import ca.richasf.control.LoanItemsController;
+import ca.richasf.control.PersistenceException;
 import ca.richasf.model.LoanItem;
 
 public class LoanItemsTrackerGui {
@@ -167,7 +164,7 @@ public class LoanItemsTrackerGui {
     public void start() {
         try {
             controller.loadLoanItems();
-        } catch (JsonIOException | JsonSyntaxException | IOException e) {
+        } catch (PersistenceException e) {
             System.err.printf("Failed to load loan items from save: %e\n", e);
         }
 

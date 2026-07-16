@@ -1,6 +1,5 @@
 package ca.richasf.view.cli;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -8,11 +7,9 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.util.Scanner;
 import java.util.Set;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-
 import ca.richasf.control.LoanItemPredicates;
 import ca.richasf.control.LoanItemsController;
+import ca.richasf.control.PersistenceException;
 import ca.richasf.model.AudioLoanItem;
 import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItemFactory;
@@ -38,7 +35,7 @@ public class LoanItemsTrackerCli {
 
         try {
             controller.loadLoanItems();
-        } catch (JsonIOException | JsonSyntaxException | IOException e) {
+        } catch (PersistenceException e) {
             System.out.printf("Failed to read save file '%s': %s", saveFilePath, e);
         }
 

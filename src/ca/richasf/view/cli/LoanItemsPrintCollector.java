@@ -1,5 +1,6 @@
 package ca.richasf.view.cli;
 
+import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
@@ -14,10 +15,15 @@ import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
 import ca.richasf.model.VideoLoanItem;
 
-public class LoanItemsListDisplayCollector
-        implements Collector<LoanItem, StringBuilder, String> {
+public class LoanItemsPrintCollector implements Collector<LoanItem, StringBuilder, Void> {
 
     private int counter = 0;
+
+    private final PrintStream output;
+
+    public LoanItemsPrintCollector(PrintStream output) {
+        this.output = output;
+    }
 
     @Override
     public BiConsumer<StringBuilder, LoanItem> accumulator() {
@@ -80,13 +86,14 @@ public class LoanItemsListDisplayCollector
     }
 
     @Override
-    public Function<StringBuilder, String> finisher() {
+    public Function<StringBuilder, Void> finisher() {
         return sb -> {
             if (counter == 0) {
                 sb.append("No items to show.\n");
             }
 
-            return sb.toString();
+            output.println(sb);
+            return null;
         };
     }
 

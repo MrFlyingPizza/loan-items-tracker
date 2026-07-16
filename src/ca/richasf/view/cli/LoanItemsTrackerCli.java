@@ -8,15 +8,13 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.stream.Stream;
-
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
+import ca.richasf.control.LoanItemPredicates;
 import ca.richasf.control.LoanItemsController;
 import ca.richasf.model.AudioLoanItem;
 import ca.richasf.model.BookLoanItem;
-import ca.richasf.model.LoanItem;
 import ca.richasf.model.LoanItemFactory;
 import ca.richasf.model.VideoLoanItem;
 import ca.richasf.textui.Prompt;
@@ -44,7 +42,8 @@ public class LoanItemsTrackerCli {
             System.out.printf("Failed to read save file '%s': %s", saveFilePath, e);
         }
 
-        mainMenu.addOption("List All Items", () -> printLoans(controller.streamLoanItems()));
+        mainMenu.addOption("List All Items", () -> controller.streamLoanItems()
+                .collect(new LoanItemsPrintCollector(output)));
 
         mainMenu.addOption("Add an Item", () -> {
 
@@ -151,7 +150,7 @@ public class LoanItemsTrackerCli {
                 return;
             }
 
-            printLoans(controller.streamLoanItems());
+            controller.streamLoanItems().collect(new LoanItemsPrintCollector(output));
             var selectionErrorMessage = "Invalid selection. Enter a number between 0 and %d"
                     .formatted(controller.countLoanItems());
             var selection = Prompt.integer("Enter a valid integer.")
@@ -171,15 +170,13 @@ public class LoanItemsTrackerCli {
             output.println("%s has been removed from the list.".formatted(toRemove.getName()));
         });
 
-        mainMenu.addOption(
-                "List Overdue Items",
-                () -> printLoans(controller.streamLoanItems()
-                        .filter(item -> item.getDue().isBefore(LocalDate.now()))));
+        mainMenu.addOption("List Overdue Items", () -> controller.streamLoanItems()
+                .filter(LoanItemPredicates.overdue())
+                .collect(new LoanItemsPrintCollector(output)));
 
-        mainMenu.addOption(
-                "List Upcoming Items",
-                () -> printLoans(controller.streamLoanItems()
-                        .filter(item -> !item.getDue().isBefore(LocalDate.now()))));
+        mainMenu.addOption("List Upcoming Items", () -> controller.streamLoanItems()
+                .filter(LoanItemPredicates.upcoming())
+                .collect(new LoanItemsPrintCollector(output)));
 
         mainMenu.addOption("List All Items of the Same Type", () -> {
             var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
@@ -195,8 +192,9 @@ public class LoanItemsTrackerCli {
                 default -> throw new RuntimeException("Unexpected class");
             };
 
-            printLoans(controller.streamLoanItems()
-                    .filter(item -> item.getClass().equals(typeClass)));
+            controller.streamLoanItems()
+                    .filter(LoanItemPredicates.sameType(typeClass))
+                    .collect(new LoanItemsPrintCollector(output));
         });
 
         mainMenu.addOption("Exit", () -> {
@@ -211,17 +209,6 @@ public class LoanItemsTrackerCli {
 
             output.println("Thank you for using our loan items tracker!");
         });
-    }
-
-    /**
-     * Writes the given list of loans output.
-     * 
-     * @param filter Determines whether a loan item should be shown.
-     */
-    private void printLoans(Stream<LoanItem> loanItems) {
-        var result = loanItems.collect(new LoanItemsListDisplayCollector());
-
-        output.println(result);
     }
 
     /**

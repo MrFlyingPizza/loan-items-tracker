@@ -1,7 +1,6 @@
 package ca.richasf.control;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -54,18 +53,6 @@ public class LoanItemsController {
 
     public Stream<LoanItem> streamLoanItems() {
         return loanItems.stream();
-    }
-
-    public Stream<LoanItem> streamOverdueLoanItems() {
-        return loanItems.stream().filter(loan -> loan.getDue().isBefore(LocalDate.now()));
-    }
-
-    public Stream<LoanItem> streamUpcomingLoanItems() {
-        return loanItems.stream().filter(loan -> !loan.getDue().isBefore(LocalDate.now()));
-    }
-
-    public Stream<LoanItem> streamSameTypeLoanItems(Class<? extends LoanItem> loanItemType) {
-        return loanItems.stream().filter(loan -> loan.getClass().equals(loanItemType));
     }
 
     public Iterable<LoanItem> iterateLoanItems() {

@@ -171,9 +171,15 @@ public class LoanItemsTrackerCli {
             output.println("%s has been removed from the list.".formatted(toRemove.getName()));
         });
 
-        mainMenu.addOption("List Overdue Items", () -> printLoans(controller.streamOverdueLoanItems()));
+        mainMenu.addOption(
+                "List Overdue Items",
+                () -> printLoans(controller.streamLoanItems()
+                        .filter(item -> item.getDue().isBefore(LocalDate.now()))));
 
-        mainMenu.addOption("List Upcoming Items", () -> printLoans(controller.streamUpcomingLoanItems()));
+        mainMenu.addOption(
+                "List Upcoming Items",
+                () -> printLoans(controller.streamLoanItems()
+                        .filter(item -> !item.getDue().isBefore(LocalDate.now()))));
 
         mainMenu.addOption("List All Items of the Same Type", () -> {
             var typeMessage = "Enter the type of loan item to list (b: book, a: audio, v: video): ";
@@ -182,12 +188,15 @@ public class LoanItemsTrackerCli {
                     .validator(oneOf(Set.of("b", "a", "v"), "Type must be one of b/a/v."))
                     .run(input, output);
 
-            printLoans(controller.streamSameTypeLoanItems(switch (type) {
+            var typeClass = switch (type) {
                 case "b" -> BookLoanItem.class;
                 case "a" -> AudioLoanItem.class;
                 case "v" -> VideoLoanItem.class;
                 default -> throw new RuntimeException("Unexpected class");
-            }));
+            };
+
+            printLoans(controller.streamLoanItems()
+                    .filter(item -> item.getClass().equals(typeClass)));
         });
 
         mainMenu.addOption("Exit", () -> {
@@ -218,7 +227,7 @@ public class LoanItemsTrackerCli {
     /**
      * Starts the loan items tracker.
      */
-    public void run() {
+    public void start() {
         mainMenu.run(input, output);
     }
 }

@@ -15,6 +15,6 @@ public class LoanItemsTracker {
      * @throws Exception If an error occurs.
      */
     public static void main(String[] args) throws Exception {
-        new LoanItemsTrackerGui().start();
+        new LoanItemsTrackerCli().start();
     }
 }

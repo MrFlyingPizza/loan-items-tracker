@@ -1,5 +1,6 @@
 package ca.richasf;
 
+import ca.richasf.view.cli.LoanItemsTrackerCli;
 import ca.richasf.view.gui.LoanItemsTrackerGui;
 
 /**

@@ -67,4 +67,8 @@ public class LoanItemsController {
     public Stream<LoanItem> streamSameTypeLoanItems(Class<? extends LoanItem> loanItemType) {
         return loanItems.stream().filter(loan -> loan.getClass().equals(loanItemType));
     }
+
+    public Iterable<LoanItem> iterateLoanItems() {
+        return loanItems;
+    }
 }

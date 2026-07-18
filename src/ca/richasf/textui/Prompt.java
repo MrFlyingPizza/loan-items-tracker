@@ -11,9 +11,10 @@ import java.util.function.Consumer;
  */
 public class Prompt<T> {
 
+    private final ValidatorFactory validators = new ValidatorFactory();
     private String message;
     private Parser<T> parser;
-    private Validator<T> validator = Validator.pass();
+    private Validator<T> validator = validators.pass();
 
     /**
      * Creates a prompt.

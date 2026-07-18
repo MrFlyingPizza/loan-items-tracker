@@ -173,7 +173,10 @@ public class LoanItemsTrackerGui {
 
         frame.setVisible(true);
 
-        listView.setDeleteHandler(controller::removeLoanItem);
+        listView.setDeleteHandler(toDelete -> {
+            controller.removeLoanItem(toDelete);
+            updateLoanItemsListView();
+        });
         listView.updateLoanItems(controller.streamLoanItems().toList());
     }
 }

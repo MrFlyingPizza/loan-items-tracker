@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
@@ -17,6 +18,8 @@ class LoanItemsListView {
     private final JPanel panel = new JPanel();
     private Consumer<LoanItem> deleteHandler = item -> {
     };
+
+    private final JLabel emptyMessageLabel = new JLabel("No items to show.");
 
     /**
      * Constructs a new {@link LoanItemsListView}.
@@ -37,15 +40,15 @@ class LoanItemsListView {
             var itemPanel = loanItemDisplay.getPanel();
             itemPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
-            loanItemDisplay.setDeleteHandler(toDelete -> {
-                panel.remove(itemPanel);
-                panel.revalidate();
-                panel.repaint();
-                deleteHandler.accept(toDelete);
-            });
+            loanItemDisplay.setDeleteHandler(toDelete -> deleteHandler.accept(toDelete));
 
             panel.add(itemPanel);
         }
+
+        if (panel.getComponentCount() == 0) {
+            panel.add(emptyMessageLabel);
+        }
+
         panel.revalidate();
         panel.repaint();
     }

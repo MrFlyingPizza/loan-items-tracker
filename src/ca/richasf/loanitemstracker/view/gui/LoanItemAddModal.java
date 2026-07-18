@@ -72,7 +72,8 @@ public class LoanItemAddModal extends JDialog {
      * @param message The message.
      * @throws BadUserInputException
      */
-    private static void throwBadUserInputIf(boolean invalid, String message) throws BadUserInputException {
+    private static void throwBadUserInputIf(boolean invalid, String message)
+            throws BadUserInputException {
         if (invalid) {
             throw new BadUserInputException(message);
         }

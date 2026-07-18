@@ -1,9 +1,12 @@
 package ca.richasf.view.gui;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
@@ -28,6 +31,29 @@ class LoanItemsListView {
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
     }
 
+    private JPanel createItemPanel(int index, LoanItem item) {
+        var pageStartPanel = new JPanel();
+        pageStartPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        pageStartPanel.add(new JLabel("Loan Item #" + index));
+        pageStartPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+
+        var pageEndPanel = new JPanel();
+        var removeButton = new JButton("Remove");
+        removeButton.addActionListener(e -> deleteHandler.accept(item));
+        pageEndPanel.add(removeButton);
+
+        var centerPanel = new LoanItemView(item).getPanel();
+
+        var panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(pageStartPanel, BorderLayout.PAGE_START);
+        panel.add(centerPanel, BorderLayout.CENTER);
+        panel.add(pageEndPanel, BorderLayout.PAGE_END);
+        panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+
+        return panel;
+    }
+
     /**
      * Updates the loan items being displayed.
      * 
@@ -35,14 +61,9 @@ class LoanItemsListView {
      */
     void updateLoanItems(Iterable<LoanItem> items) {
         panel.removeAll();
+        var index = 0;
         for (var item : items) {
-            var loanItemDisplay = new LoanItemView(item);
-            var itemPanel = loanItemDisplay.getPanel();
-            itemPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-
-            loanItemDisplay.setDeleteHandler(toDelete -> deleteHandler.accept(toDelete));
-
-            panel.add(itemPanel);
+            panel.add(createItemPanel(++index, item));
         }
 
         if (panel.getComponentCount() == 0) {

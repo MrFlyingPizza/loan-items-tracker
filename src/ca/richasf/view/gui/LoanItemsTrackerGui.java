@@ -2,14 +2,17 @@ package ca.richasf.view.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.function.Predicate;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
+
 import ca.richasf.control.LoanItemPredicateFactory;
 import ca.richasf.control.LoanItemsController;
 import ca.richasf.control.PersistenceException;
@@ -112,13 +115,18 @@ public class LoanItemsTrackerGui {
         var addButton = new JButton("Add an Loan Item");
         panel.add(addButton);
 
-        addButton.addActionListener(item -> {
-            var dialog = new JDialog(frame, true);
+        addButton.addActionListener(e -> {
+            System.out.println("Owner: " + frame.getLocationOnScreen());
 
-            var addView = new LoanItemAddView();
-            dialog.setContentPane(addView.getPanel());
-            dialog.pack();
-            dialog.setVisible(true);
+            var addModal = new LoanItemAddModal(frame);
+
+            System.out.println("Dialog before visible: " + addModal.getLocation());
+
+            addModal.setCreateHandler(item -> {
+                controller.addLoanItem(item);
+                updateLoanItemsListView();
+            });
+            addModal.setVisible(true);
         });
 
         return panel;
@@ -160,23 +168,36 @@ public class LoanItemsTrackerGui {
             System.err.printf("Failed to load loan items from save: %e\n", e);
         }
 
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    System.out.println("Saving loan items.");
+                    controller.saveLoanItems();
+                } catch (PersistenceException exception) {
+                    System.err.printf("Failed to save loan items: %e", exception);
+                }
+            }
+        });
+
         frame.setTitle("Loan Items Tracker");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        frame.addWindowListener(new MainFrameWindowListener());
-
-        var mainPanel = createMainPanel();
-
-        frame.add(mainPanel);
-
-        frame.setMinimumSize(new Dimension(600, 400));
-
-        frame.setVisible(true);
 
         listView.setDeleteHandler(toDelete -> {
             controller.removeLoanItem(toDelete);
             updateLoanItemsListView();
         });
         listView.updateLoanItems(controller.streamLoanItems().toList());
+
+        frame.add(createMainPanel());
+
+        frame.setMinimumSize(new Dimension(600, 400));
+
+        frame.pack();
+
+        frame.setLocationRelativeTo(null);
+
+        frame.setVisible(true);
     }
 }

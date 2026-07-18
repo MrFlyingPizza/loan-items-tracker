@@ -7,24 +7,32 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+/**
+ * Display a list of options and handles their selection.
+ * 
+ * @param <T> The type of the value.
+ */
 class ListOptionsView<T> {
 
+    /**
+     * Represents an option.
+     * 
+     * @param name  The name of the option to display.
+     * @param value The value to dispatch when selected.
+     */
     static record Option<T>(String name, T value) {
-    }
-
-    @SafeVarargs
-    static <T> ListOptionsView<T> of(Option<T> defaultOption, Option<T>... options) {
-        return new ListOptionsView<>(defaultOption, options);
-    }
-
-    static <T> Option<T> option(String name, T value) {
-        return new Option<>(name, value);
     }
 
     private final JPanel panel = new JPanel();
 
     private Consumer<T> selectHandler;
 
+    /**
+     * Constructs a new {@link ListOptionsView}.
+     * 
+     * @param defaultOption The option that is selected by default.
+     * @param options       The remainder of the options.
+     */
     @SafeVarargs
     ListOptionsView(Option<T> defaultOption, Option<T>... options) {
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
@@ -42,10 +50,18 @@ class ListOptionsView<T> {
         }
     }
 
+    /**
+     * Set the handler for when a value is selected.
+     * @param selectHandler The handler.
+     */
     void setSelectHandler(Consumer<T> selectHandler) {
         this.selectHandler = selectHandler;
     }
 
+    /**
+     * Get the panel to this view.
+     * @return The panel.
+     */
     JPanel getPanel() {
         return panel;
     }

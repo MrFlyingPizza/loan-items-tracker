@@ -9,15 +9,27 @@ import javax.swing.border.BevelBorder;
 
 import ca.richasf.model.LoanItem;
 
+/**
+ * A view that lists loan items.
+ */
 class LoanItemsListView {
 
     private final JPanel panel = new JPanel();
-    private Consumer<LoanItem> deleteHandler = item -> {};
+    private Consumer<LoanItem> deleteHandler = item -> {
+    };
 
+    /**
+     * Constructs a new {@link LoanItemsListView}.
+     */
     LoanItemsListView() {
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
     }
 
+    /**
+     * Updates the loan items being displayed.
+     * 
+     * @param items The loan item.
+     */
     void updateLoanItems(Iterable<LoanItem> items) {
         panel.removeAll();
         for (var item : items) {
@@ -38,10 +50,20 @@ class LoanItemsListView {
         panel.repaint();
     }
 
+    /**
+     * Get the panel to this view.
+     * 
+     * @return The panel.
+     */
     JPanel getPanel() {
         return panel;
     }
 
+    /**
+     * Set the delete handler.
+     * 
+     * @param deleteHandler The delete handler.
+     */
     void setDeleteHandler(Consumer<LoanItem> deleteHandler) {
         this.deleteHandler = deleteHandler;
     }

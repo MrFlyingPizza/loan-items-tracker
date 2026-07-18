@@ -4,6 +4,7 @@
     ],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "lib/gson-2.13.2.jar"
+        "lib/gson-2.13.2.jar",
+        "lib/LGoodDatePicker-11.2.1.jar"
     ]
 }

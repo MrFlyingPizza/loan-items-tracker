@@ -7,7 +7,7 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.util.Scanner;
 import java.util.Set;
-import ca.richasf.control.LoanItemPredicates;
+import ca.richasf.control.LoanItemPredicateFactory;
 import ca.richasf.control.LoanItemsController;
 import ca.richasf.control.PersistenceException;
 import ca.richasf.model.AudioLoanItem;
@@ -20,6 +20,7 @@ import static ca.richasf.textui.Validator.*;
 
 public class LoanItemsTrackerCli {
 
+    private final LoanItemPredicateFactory predicateFactory = new LoanItemPredicateFactory();
     private final Scanner input = new Scanner(System.in);
     private final PrintStream output = System.out;
     private final Menu mainMenu = new Menu("Loan Items Tracker");;
@@ -170,11 +171,11 @@ public class LoanItemsTrackerCli {
         });
 
         mainMenu.addOption("List Overdue Items", () -> controller.streamLoanItems()
-                .filter(LoanItemPredicates.overdue())
+                .filter(predicateFactory.overdue())
                 .collect(new LoanItemsPrintCollector(output)));
 
         mainMenu.addOption("List Upcoming Items", () -> controller.streamLoanItems()
-                .filter(LoanItemPredicates.upcoming())
+                .filter(predicateFactory.upcoming())
                 .collect(new LoanItemsPrintCollector(output)));
 
         mainMenu.addOption("List All Items of the Same Type", () -> {
@@ -192,7 +193,7 @@ public class LoanItemsTrackerCli {
             };
 
             controller.streamLoanItems()
-                    .filter(LoanItemPredicates.sameType(typeClass))
+                    .filter(predicateFactory.sameType(typeClass))
                     .collect(new LoanItemsPrintCollector(output));
         });
 

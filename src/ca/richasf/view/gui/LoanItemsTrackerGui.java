@@ -6,10 +6,11 @@ import java.util.function.Predicate;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import ca.richasf.control.LoanItemPredicates;
+import ca.richasf.control.LoanItemPredicateFactory;
 import ca.richasf.control.LoanItemsController;
 import ca.richasf.control.PersistenceException;
 import ca.richasf.model.AudioLoanItem;
@@ -17,54 +18,80 @@ import ca.richasf.model.BookLoanItem;
 import ca.richasf.model.LoanItem;
 import ca.richasf.model.VideoLoanItem;
 
-import static ca.richasf.control.LoanItemPredicates.*;
-
+/**
+ * Core class for running the loan items tracker GUI app.
+ */
 public class LoanItemsTrackerGui {
+
+    private final LoanItemPredicateFactory predicateFactory = new LoanItemPredicateFactory();
 
     private final LoanItemsController controller = new LoanItemsController();
 
-    private Predicate<LoanItem> listPredicate = LoanItemPredicates.all(),
-            typePredicate = LoanItemPredicates.all();
+    private final JFrame frame = new JFrame();
+
+    private Predicate<LoanItem> duePredicate = predicateFactory.all(),
+            typePredicate = predicateFactory.all();
 
     private final LoanItemsListView listView = new LoanItemsListView();
 
+    /**
+     * Construct a new loan items tracker GUI app instance.
+     */
     public LoanItemsTrackerGui() {
     }
 
-    private void updateLoanItems() {
+    /**
+     * Update the loan items list view.
+     */
+    private void updateLoanItemsListView() {
         listView.updateLoanItems(controller.streamLoanItems()
-                .filter(listPredicate.and(typePredicate))
+                .filter(duePredicate.and(typePredicate))
                 .toList());
     }
 
-    private void updateListPredicate(Predicate<LoanItem> listPredicate) {
-        this.listPredicate = listPredicate;
-        updateLoanItems();
+    /**
+     * Update the predicate used to filter loan items by due date.
+     * 
+     * @param duePredicate The new predicate.
+     */
+    private void updateDuePredicate(Predicate<LoanItem> duePredicate) {
+        this.duePredicate = duePredicate;
+        updateLoanItemsListView();
     }
 
+    /**
+     * Update the predicate used to filter loan items by type.
+     * 
+     * @param typePredicate The new predicate.
+     */
     private void updateTypePredicate(Predicate<LoanItem> typePredicate) {
         this.typePredicate = typePredicate;
-        updateLoanItems();
+        updateLoanItemsListView();
     }
 
+    /**
+     * Create the panel at the top of the page.
+     * 
+     * @return The page start panel.
+     */
     private JPanel createPageStartPanel() {
         var panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-        var listOptionsView = ListOptionsView.of(
-                ListOptionsView.option("List All", all()),
-                ListOptionsView.option("List Overdue", overdue()),
-                ListOptionsView.option("List Upcoming", upcoming()));
+        var listOptionsView = new ListOptionsView<>(
+                new ListOptionsView.Option<>("List All", predicateFactory.all()),
+                new ListOptionsView.Option<>("List Overdue", predicateFactory.overdue()),
+                new ListOptionsView.Option<>("List Upcoming", predicateFactory.upcoming()));
 
-        listOptionsView.setSelectHandler(this::updateListPredicate);
+        listOptionsView.setSelectHandler(this::updateDuePredicate);
 
         panel.add(listOptionsView.getPanel());
 
         var typeOptionsView = TypeOptionsView.of(
-                TypeOptionsView.option("All", all()),
-                TypeOptionsView.option("Book", sameType(BookLoanItem.class)),
-                TypeOptionsView.option("Audio", sameType(AudioLoanItem.class)),
-                TypeOptionsView.option("Video", sameType(VideoLoanItem.class)));
+                TypeOptionsView.option("All", predicateFactory.all()),
+                TypeOptionsView.option("Book", predicateFactory.sameType(BookLoanItem.class)),
+                TypeOptionsView.option("Audio", predicateFactory.sameType(AudioLoanItem.class)),
+                TypeOptionsView.option("Video", predicateFactory.sameType(VideoLoanItem.class)));
 
         typeOptionsView.setSelectHandler(this::updateTypePredicate);
 
@@ -73,20 +100,45 @@ public class LoanItemsTrackerGui {
         return panel;
     }
 
+    /**
+     * Create the panel at the bottom of the page.
+     * 
+     * @return The page end panel.
+     */
     private JPanel createPageEndPanel() {
         var panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-        panel.add(new JButton("Add an Loan Item"));
+        var addButton = new JButton("Add an Loan Item");
+        panel.add(addButton);
+
+        addButton.addActionListener(item -> {
+            var dialog = new JDialog(frame, true);
+
+            var addView = new LoanItemAddView();
+            dialog.setContentPane(addView.getPanel());
+            dialog.pack();
+            dialog.setVisible(true);
+        });
 
         return panel;
     }
 
+    /**
+     * Create the center content panel.
+     * 
+     * @return The content panel.
+     */
     private JScrollPane createContentPanel() {
         var scrollPane = new JScrollPane(listView.getPanel());
         return scrollPane;
     }
 
+    /**
+     * Create the main panel.
+     * 
+     * @return The main panel.
+     */
     private JPanel createMainPanel() {
         var mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
@@ -98,6 +150,9 @@ public class LoanItemsTrackerGui {
         return mainPanel;
     }
 
+    /**
+     * Starts the loan items GUI application.
+     */
     public void start() {
         try {
             controller.loadLoanItems();
@@ -105,7 +160,6 @@ public class LoanItemsTrackerGui {
             System.err.printf("Failed to load loan items from save: %e\n", e);
         }
 
-        var frame = new JFrame();
         frame.setTitle("Loan Items Tracker");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

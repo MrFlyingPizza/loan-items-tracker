@@ -1,0 +1,11 @@
+Click the buttons at the top to switch between different listing modes.
+
+Click the radio buttons to switch between different types.
+
+The listing mode and the type selection are compounding, meaning that they
+both apply to filter the list of items. For example, you can select both
+overdue and book type to show only the items that match both criteria.
+
+To create items, press the Add button.
+
+To remove any item, press the Remove button on any item.

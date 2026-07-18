@@ -48,6 +48,7 @@ public class LoanItemsTrackerGui {
      */
     private void updateLoanItemsListView() {
         listView.updateLoanItems(controller.streamLoanItems()
+                .sorted()
                 .filter(duePredicate.and(typePredicate))
                 .toList());
     }

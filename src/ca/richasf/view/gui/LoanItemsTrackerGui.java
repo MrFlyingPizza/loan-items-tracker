@@ -116,12 +116,7 @@ public class LoanItemsTrackerGui {
         panel.add(addButton);
 
         addButton.addActionListener(e -> {
-            System.out.println("Owner: " + frame.getLocationOnScreen());
-
             var addModal = new LoanItemAddModal(frame);
-
-            System.out.println("Dialog before visible: " + addModal.getLocation());
-
             addModal.setCreateHandler(item -> {
                 controller.addLoanItem(item);
                 updateLoanItemsListView();

@@ -31,6 +31,7 @@ public class Menu {
     public record Option(String text, Action action) {
     }
 
+    private final PromptFactory promptFactory = new PromptFactory();
     private final String title;
     private final List<Option> options = new ArrayList<>();
     private boolean running = true;
@@ -77,7 +78,7 @@ public class Menu {
 
         while (running) {
             display(out);
-            var value = Prompt.integer("Enter a valid integer.")
+            var value = promptFactory.integer("Enter a valid integer.")
                     .message("Choose an option by entering 1-%d: ".formatted(options.size()))
                     .validator(Validator.bound(1, options.size(), errorMessage))
                     .run(in, out);

@@ -1,3 +1,5 @@
+# Listing Modes
+
 Click the buttons at the top to switch between different listing modes.
 
 Click the radio buttons to switch between different types.
@@ -6,6 +8,66 @@ The listing mode and the type selection are compounding, meaning that they
 both apply to filter the list of items. For example, you can select both
 overdue and book type to show only the items that match both criteria.
 
+## Show All Items
+
+On the main interface, select "List All" toggle at the top and "All" just below.
+
+
+## Show Overdue Items
+
+On the main interface, select "List Overdue" toggle at the top and "All" just below.
+
+
+## Show Upcoming Items
+
+On the main interface, select "List Upcoming" toggle at the top and "All" just below.
+
+
+## Show Only Book Loan Items
+
+On the main interface, select "List All" toggle at the top and "Book" just below.
+
+
+## Show Only Audio Loan Items
+
+On the main interface, select "List All" toggle at the top and "Audio" just below.
+
+
+## Show Only Video Loan Items
+
+On the main interface, select "List All" toggle at the top and "Video" just below.
+
+# Deleting Items
+
+On the main interface, if there is any item, you can press the "Delete" button to remove it.
+
+
+# Creating Items
+
 To create items, press the Add button.
 
-To remove any item, press the Remove button on any item.
+
+## Creating a Book Loan Item
+
+To create a book loan item, on the main page, press the "Add an Loan Item" button,
+and select "Book" for the type dropdown. Enter all information correctly, then
+press the "Create" button. The new item will show on the main interface.
+
+
+## Creating a Audio Loan Item
+
+To create a audio loan item, on the main page, press the "Add an Loan Item" button,
+and select "Audio" for the type dropdown. Enter all information correctly, then
+press the "Create" button. The new item will show on the main interface.
+
+
+## Creating a Video Loan Item
+
+To create a video loan item, on the main page, press the "Add an Loan Item" button,
+and select "Video" for the type dropdown. Enter all information correctly, then
+press the "Create" button. The new item will show on the main interface.
+
+
+## Canceling a Creation
+
+You can exit the "Add a New Loan Item" window by pressing "Cancel" or the X.

@@ -26,5 +26,11 @@ javac -d bin src/ca/richasf/**/*.java
 Run this command to run.
 
 ```sh
-java -cp lib/*:bin ca.richasf.LoanItemsTracker
+java -cp lib/*:bin ca.richasf.loanitemstracker.LoanItemsTracker
+```
+
+Run this command to create Javadoc.
+
+```sh
+javadoc -d ./docs -cp ./lib/gson-2.13.2.jar:./lib/LGoodDatePicker-11.2.1.jar -sourcepath ./src -subpackages ca.richasf.loanitemstracker
 ```

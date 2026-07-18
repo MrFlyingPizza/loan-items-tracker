@@ -1,4 +1,7 @@
-ca.richasf
-ca.richasf.gson.extras
-ca.richasf.model
-ca.richasf.textui
+ca.richasf.loanitemstracker
+ca.richasf.loanitemstracker.control
+ca.richasf.loanitemstracker.gson.extras
+ca.richasf.loanitemstracker.model
+ca.richasf.loanitemstracker.textui
+ca.richasf.loanitemstracker.view.cli
+ca.richasf.loanitemstracker.view.gui
